@@ -24,12 +24,11 @@ class Code:
 
 # Function Class
 class Function:
-    def __init__(self, name, desc, parameters, code, returnVal):
+    def __init__(self, name, desc, parameters, code):
         self.name = name
         self.desc = desc
         self.parameters = parameters
         self.code = code
-        self.returnVal = returnVal
 
 # Following Rules should be followed in Code
 # 1. Script Description MUST be given at start in ''' or """
@@ -46,14 +45,30 @@ def PythonCode_Tokenize(code_lines):
             code_lines_preprocessed.append(l)
     code_lines = code_lines_preprocessed
 
+    print("Initial Code:\n", code_lines)
+
     curIndex = 0
     # Get the Script Description
     ScriptDesc, remaining_code_lines = GetScriptDesc(code_lines)
     code_lines = remaining_code_lines
-    print(code_lines)
+    print("Script Desc:\n", ScriptDesc)
+    # print("Code after Script Desc:\n", code_lines)
+
+    # Get the Imports
+    Imports, remaining_code_lines = GetImports(code_lines)
+    code_lines = remaining_code_lines
+    print("Imports:\n", Imports)
+    # print("Code after Imports:\n", code_lines)
+
+    # Get Functions
+    Functions, remaining_code_lines = GetFunctions(code_lines)
+    code_lines = remaining_code_lines
+    print("Functions:\n")
+    for f in Functions:
+        print(f.name, "\n", f.parameters, "\n", f.code)
+    # print("Code after Functions Code:\n", code_lines)
         
     Imports = None
-    Functions = None
     Params = None
     DriverCode = None
     return ScriptDesc, Imports, Functions, Params, DriverCode
@@ -103,9 +118,65 @@ def GetScriptDesc(code_lines):
                 ScriptDesc = ScriptDesc + l + "\n"
                 # print("Added3:", l)
 
+    if not DescFound:
+        ScriptDesc = ''
+        remaining_code_lines = code_lines
+
     ScriptDesc = ScriptDesc.strip('\n')
 
     return ScriptDesc, remaining_code_lines
+
+def GetImports(code_lines):
+    remaining_code_lines = []
+
+    Imports = []
+
+    lastImport_Index = -1
+    for i in range(len(code_lines)):
+        if re.search('^import', code_lines[i]) is not None or re.search('^from .* import', code_lines[i]) is not None:
+            Imports.append(code_lines[i].strip('\n'))
+            lastImport_Index = i
+
+    if lastImport_Index == -1:
+        remaining_code_lines = code_lines
+    elif lastImport_Index < len(code_lines)-1:
+        remaining_code_lines = code_lines[lastImport_Index+1:]
+
+    return Imports, remaining_code_lines
+
+
+
+def GetFunctions(code_lines):
+    remaining_code_lines = []
+
+    Functions = []
+    FunctionStart = 'def'
+    FunctionEnd = '#FEND'
+
+    FunctionStarted = False
+    curFunction = None
+    for i in range(len(code_lines)):
+        if FunctionStarted:
+            if code_lines[i].strip().startswith(FunctionEnd):
+                FunctionStarted = False
+                Functions.append(curFunction)
+                curFunction = None
+                if i < len(code_lines)-1:
+                    remaining_code_lines = code_lines[i+1:]
+                continue
+            else:
+                curFunction.code.append(code_lines[i].strip('\n'))
+        elif re.search('^' + FunctionStart, code_lines[i]) is not None:
+            FunctionStarted = True
+            name = re.findall('^' + FunctionStart + '(.*)\(', code_lines[i])[0].strip('\n')
+            parameters = re.findall('^' + FunctionStart + '.*\((.*)\)', code_lines[i])[0].replace(' ', '').strip('\n').split(',')
+            curFunction = Function(name, '', parameters, [])
+            continue
+
+    if len(Functions) == 0:
+        remaining_code_lines = code_lines
+
+    return Functions, remaining_code_lines
 
 
 # Driver Code
@@ -114,4 +185,3 @@ mainPath = 'TestCodes/'
 fileName = 'Test.py'
 
 PyCode = Code(mainPath + fileName)
-print(PyCode.script_desc)
