@@ -21,6 +21,7 @@ IntVal = 2
 BoolVal = False
 StrVal = 'LOLHI'
 FloatVal = -12213.1313
+DropDownVal = '1' #TYPE: DROPDOWN '1','2','3'
 
 # Driver Code
 # LOLBOI
@@ -32,3 +33,4 @@ print(StrSum)
 print(IntDiff)
 print(FloatMult)
 print(BoolAND)
+print(DropDownVal)

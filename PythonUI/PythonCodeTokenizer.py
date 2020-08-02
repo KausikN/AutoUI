@@ -44,20 +44,46 @@ class ScriptParameter:
         self.value = value
         self.value_prefix = ''
         self.value_suffix = ''
+        self.type = None
+        self.ui_mode = None
         self.findType(value)
-    def findType(self, value):
-        if value == 'None':
-            self.value = None
-            self.type = type(None)
-        elif value in ['True', 'False']:
-            self.value = value == 'True'
-            self.type = type(self.value)
+    def getCodeText(self):
+        if self.value is None:
+            return self.name + " = " + "None"
         else:
-            if value.startswith('"') and value.endswith('"') or value.startswith("'") and value.endswith("'"):
+            return self.name + " = " + self.value_prefix + str(self.value) + self.value_suffix
+    def findType(self, value):
+        # Specified Type
+        SpecifiedType = True
+        if '#TYPE:' in value:
+            SpecTypeData = re.findall('#TYPE:(.*)', value)[-1].strip().split(' ')
+            if SpecTypeData[0] == 'DROPDOWN':
+                self.ui_mode = 'DROPDOWN'
+                choices = SpecTypeData[1].split(',')
+                sp_temp = ScriptParameter('temp', choices[0])
+                self.type = sp_temp.type
+                self.value = list(map(self.type, choices))
+            else: # Empty Specification - IGNORE
+                SpecifiedType = False
+        else:
+            SpecifiedType = False
+
+        if not SpecifiedType:
+            # None Type
+            if value == 'None':
+                self.value = None
+                self.type = type(None)
+            # Bool Type
+            elif value in ['True', 'False']:
+                self.value = value == 'True'
+                self.type = type(self.value)
+            # String Type
+            elif value.startswith('"') and value.endswith('"') or value.startswith("'") and value.endswith("'"):
                 self.value = value[1:-1]
                 self.type = type(self.value)
                 self.value_prefix = value[0]
                 self.value_suffix = value[-1]
+            # Other Types
             else:
                 Types = [float, int]
 
@@ -79,7 +105,7 @@ class ScriptParameter:
 #       -   Imports after line # Imports
 #       -   Functions after line # Main Functions
 #       -   Driver Code after line # Driver Code
-def PythonCode_Tokenize(code_lines):
+def PythonCode_Tokenize(code_lines, verbose=False):
     # Preprocess
     # Remove all empty lines
     code_lines_preprocessed = []
@@ -88,42 +114,48 @@ def PythonCode_Tokenize(code_lines):
             code_lines_preprocessed.append(l)
     code_lines = code_lines_preprocessed
 
-    print("Initial Code:\n", code_lines)
+    if verbose:
+        print("Initial Code:\n", code_lines)
 
     curIndex = 0
     # Get the Script Description
     ScriptDesc, remaining_code_lines = GetScriptDesc(code_lines)
     code_lines = remaining_code_lines
-    print("Script Desc:\n", ScriptDesc)
-    # print("Code after Script Desc:\n", code_lines)
+    if verbose:
+        print("Script Desc:\n", ScriptDesc)
+        # print("Code after Script Desc:\n", code_lines)
 
     # Get the Imports
     Imports, remaining_code_lines = GetImports(code_lines)
     code_lines = remaining_code_lines
-    print("Imports:\n", Imports)
-    # print("Code after Imports:\n", code_lines)
+    if verbose:
+        print("Imports:\n", Imports)
+        # print("Code after Imports:\n", code_lines)
 
     # Get Functions
     Functions, remaining_code_lines = GetFunctions(code_lines)
     code_lines = remaining_code_lines
-    print("Functions:\n")
-    for f in Functions:
-        print(f.name, "\n", f.parameters, "\n", f.code)
-    # print("Code after Functions Code:\n", code_lines)
+    if verbose:
+        print("Functions:\n")
+        for f in Functions:
+            print(f.name, "\n", f.parameters, "\n", f.code)
+        # print("Code after Functions Code:\n", code_lines)
 
     # Get ScriptParameters
     ScriptParameters, remaining_code_lines = GetScriptParameters(code_lines)
     code_lines = remaining_code_lines
-    print("ScriptParameters:\n")
-    for sp in ScriptParameters:
-        print(sp.name, "\n", sp.value, "\n", sp.type)
-    # print("Code after ScriptParameters:\n", code_lines)
+    if verbose:
+        print("ScriptParameters:\n")
+        for sp in ScriptParameters:
+            print(sp.name, "\n", sp.value, "\n", sp.type)
+        # print("Code after ScriptParameters:\n", code_lines)
     
     # Get Driver Code
     DriverCode = code_lines
-    print("Driver Code:\n")
-    for c in DriverCode:
-        print(c)
+    if verbose:
+        print("Driver Code:\n")
+        for c in DriverCode:
+            print(c)
 
     return ScriptDesc, Imports, Functions, ScriptParameters, DriverCode
             
@@ -289,7 +321,7 @@ def ReconstructCodeText(code_data):
     code_text.append("# Driver Code")
     code_text.append("# Params")
     for sp in code_data.script_parameters:
-        code_text.append(sp.name + " = " + sp.value_prefix + str(sp.value) + sp.value_suffix)
+        code_text.append(sp.getCodeText())
 
     code_text.append("")
 
@@ -298,6 +330,7 @@ def ReconstructCodeText(code_data):
 
     return '\n'.join(code_text)
 
+"""
 # Driver Code
 # Params
 mainPath = 'TestCodes/'
@@ -318,3 +351,4 @@ for i in range(len(PyCode.script_parameters)):
 # Reconstruct Code
 code_RE = ReconstructCodeText(PyCode)
 open(mainPath + ReconstructedCode_savePath, 'w').write(code_RE)
+"""
