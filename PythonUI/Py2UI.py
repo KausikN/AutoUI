@@ -23,6 +23,10 @@ def GenerateWindowData(ScriptParameters, RunScriptFunc):
 
     # Generate UI for Input Parameters
     curPos = [0, 0]
+
+    fieldSetNoneLabel = Field('SetNone', 'Label', 'Set None', [curPos[0], curPos[1] + 2])
+    WindowData.append(fieldSetNoneLabel)
+    curPos = [curPos[0] + 1, curPos[1]]
     for sp in ScriptParameters:
         if sp.value is None:
             continue
