@@ -1,0 +1,17 @@
+{
+    "Input_UI": "INPUT_UI", 
+    "Input_String": "INPUT_STRING", 
+    "Input_Bool": "INPUT_BOOL", 
+    "Input_Int": "INPUT_INT", 
+    "Input_Float": "INPUT_FLOAT", 
+    "Input_DropdownList": "INPUT_DROPDOWNLIST", 
+
+    "Title_UI": "TITLE_UI", 
+    "Title_Label": "LABEL", 
+
+    "Additional_UI": "ADDITIONAL_UI", 
+    "Additional_NoneCheck": "NONECHECK", 
+
+    "Button_UI": "BUTTON_UI", 
+    "Button_Function": "FUNCTION"
+}

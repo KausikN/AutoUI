@@ -4,11 +4,21 @@ Tokenizes any Python Code
 
 # Imports
 import re
+import json
+
+# Load Config
+config = json.load(open('PythonUI/TokenConfig.json', 'rb'))
 
 # Main Functions
 # Basic Functions
 def ReadPythonCode(path):
     return open(path, 'r').readlines()
+
+def isStringData(val, StringDetectors):
+    for sd in StringDetectors:
+        if val.startswith(sd) and val.endswith(sd):
+            return True
+    return False
 
 def CheckType(value, TypeFunc):
     try: 
@@ -55,10 +65,10 @@ class ScriptParameter:
     def findType(self, value):
         # Specified Type
         SpecifiedType = True
-        if '#TYPE:' in value:
-            SpecTypeData = re.findall('#TYPE:(.*)', value)[-1].strip().split(' ')
-            if SpecTypeData[0] == 'DROPDOWN':
-                self.ui_mode = 'DROPDOWN'
+        if config['SpecificType_Declare'] in value:
+            SpecTypeData = re.findall(config['SpecificType_Declare'] + '(.*)', value)[-1].strip().split(' ')
+            if SpecTypeData[0] == config['SpecificTypes']['Dropdown']:
+                self.ui_mode = config['SpecificTypes']['Dropdown']
                 choices = SpecTypeData[1].split(',')
                 sp_temp = ScriptParameter('temp', choices[0])
                 self.type = sp_temp.type
@@ -78,7 +88,7 @@ class ScriptParameter:
                 self.value = value == 'True'
                 self.type = type(self.value)
             # String Type
-            elif value.startswith('"') and value.endswith('"') or value.startswith("'") and value.endswith("'"):
+            elif isStringData(value, config['String_Detect']):
                 self.value = value[1:-1]
                 self.type = type(self.value)
                 self.value_prefix = value[0]
@@ -163,7 +173,7 @@ def GetScriptDesc(code_lines):
     remaining_code_lines = []
 
     ScriptDesc = ''
-    DescSeparators = ['"""', "'''"]
+    DescSeparators = config['Desc_Detect']
     
     DescFound = False
     SepFound = False
@@ -216,12 +226,15 @@ def GetImports(code_lines):
     remaining_code_lines = []
 
     Imports = []
+    ImportDetectors = config['Import_Detect']
 
     lastImport_Index = -1
     for i in range(len(code_lines)):
-        if re.search('^import', code_lines[i]) is not None or re.search('^from .* import', code_lines[i]) is not None:
-            Imports.append(code_lines[i].strip('\n'))
-            lastImport_Index = i
+        for imd in ImportDetectors:
+            if re.search(imd, code_lines[i]) is not None:
+                Imports.append(code_lines[i].strip('\n'))
+                lastImport_Index = i
+                break
 
     if lastImport_Index == -1:
         remaining_code_lines = code_lines
@@ -234,8 +247,8 @@ def GetFunctions(code_lines):
     remaining_code_lines = []
 
     Functions = []
-    FunctionStart = 'def'
-    FunctionEnd = '#FEND'
+    FunctionStart = config['Function_Start']
+    FunctionEnd = config['Function_End']
 
     FunctionStarted = False
     curFunction = None
@@ -250,10 +263,10 @@ def GetFunctions(code_lines):
                 continue
             else:
                 curFunction.code.append(code_lines[i].strip('\n'))
-        elif re.search('^' + FunctionStart, code_lines[i]) is not None:
+        elif re.search(FunctionStart, code_lines[i]) is not None:
             FunctionStarted = True
-            name = re.findall('^' + FunctionStart + '(.*)\(', code_lines[i])[0].strip('\n')
-            parameters = re.findall('^' + FunctionStart + '.*\((.*)\)', code_lines[i])[0].replace(' ', '').strip('\n').split(',')
+            name = re.findall(config['Function_Name_Detect'], code_lines[i])[0].strip('\n')
+            parameters = re.findall(config['Function_Parameters_Detect'], code_lines[i])[0].replace(' ', '').strip('\n').split(',')
             curFunction = Function(name, '', parameters, [])
             continue
 
@@ -266,8 +279,8 @@ def GetScriptParameters(code_lines):
     remaining_code_lines = []
 
     ScriptParameters = []
-    ParamsStart = '# Params'
-    ParamsEnd = '# Params'
+    ParamsStart = config['ScriptParams_Start']
+    ParamsEnd = config['ScriptParams_End']
 
     ParamsStarted = False
     curParams = []
@@ -279,11 +292,11 @@ def GetScriptParameters(code_lines):
                 curParams = []
                 continue
             else:
-                name = re.findall('^(.*)=', code_lines[i])[0].strip().strip('\n')
-                value = re.findall('^.*=(.*)', code_lines[i])[0].strip().strip('\n')
+                name = re.findall(config['ScriptParams_Name_Detect'], code_lines[i])[0].strip().strip('\n')
+                value = re.findall(config['ScriptParams_Value_Detect'], code_lines[i])[0].strip().strip('\n')
                 param = ScriptParameter(name, value)
                 curParams.append(param)
-        elif re.search('^' + ParamsStart, code_lines[i]) is not None:
+        elif code_lines[i].strip().startswith(ParamsStart):
             ParamsStarted = True
             continue
         else:
@@ -296,9 +309,9 @@ def ReconstructCodeText(code_data):
     code_text = []
 
     # Reconstruct Script Desc
-    code_text.append("'''")
+    code_text.append(config['Desc_Detect'][0])
     code_text.append(code_data.script_desc)
-    code_text.append("'''")
+    code_text.append(config['Desc_Detect'][0])
 
     code_text.append("")
 

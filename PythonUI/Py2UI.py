@@ -3,115 +3,91 @@ Script to generate UI for a Python Code File
 '''
 
 # Imports
+import json
+
 import PythonCodeTokenizer as pct
 
 # For Tkinter UI Generation
 import UIGen_TKinter as uigen
 
+# Load Config
+config = json.load(open('PythonUI/WindowDataConfig.json', 'rb'))
+
 # Main Functions
 # Field Class
 class Field:
-    def __init__(self, name, Type, value, location):
+    def __init__(self, name, Type, value, location, cmd=None):
         self.name = name
         self.type = Type
         self.value = value
         self.location = location
+        self.command = cmd
 
 # Generate Window Data
-def GenerateWindowData(ScriptParameters, RunScriptFunc):
-    WindowData = []
+def GenerateWindowData(ScriptParameters, RunScriptFunc, OtherFuncs):
+    WindowData = {}
+    WindowData[config['Input_UI']] = []
+    WindowData[config['Title_UI']] = []
+    WindowData[config['Additional_UI']] = []
+    WindowData[config['Button_UI']] = []
 
     # Generate UI for Input Parameters
     curPos = [0, 0]
 
-    fieldSetNoneLabel = Field('SetNone', 'Label', 'Set None', [curPos[0], curPos[1] + 2])
-    WindowData.append(fieldSetNoneLabel)
+    # Title Label Fields
+    fieldSetNoneLabel = Field('SetNone', config['Title_Label'], 'Set None', [curPos[0], curPos[1]])
+    fieldTitleLabel = Field('LabelsTitle', config['Title_Label'], 'Params', [curPos[0], curPos[1] + 1])
+    fieldDataLabel = Field('EntryTitle', config['Title_Label'], 'Data', [curPos[0], curPos[1] + 2])
+    WindowData[config['Title_UI']].append(fieldSetNoneLabel)
+    WindowData[config['Title_UI']].append(fieldTitleLabel)
+    WindowData[config['Title_UI']].append(fieldDataLabel)
+
+    # Actual Parameter Fields
     curPos = [curPos[0] + 1, curPos[1]]
     for sp in ScriptParameters:
         if sp.value is None:
             continue
         
         # Additional Fields
-        fieldLabel = Field(sp.name, 'Label', sp.name, [curPos[0], curPos[1]])
-        fieldNoneCheck = Field(sp.name, 'NoneCheck', False, [curPos[0], curPos[1] + 2])
+        fieldNoneCheck = Field(sp.name, config['Additional_NoneCheck'], False, [curPos[0], curPos[1]], OtherFuncs[config['Additional_NoneCheck']])
+        fieldLabel = Field(sp.name, config['Title_Label'], sp.name, [curPos[0], curPos[1] + 1])
 
-        field = Field(sp.name, None, sp.value, [curPos[0], curPos[1] + 1])
+        field = Field(sp.name, None, sp.value, [curPos[0], curPos[1] + 2])
         # print(sp.ui_mode)
         # print(sp.value)
         if sp.ui_mode == None:
             if sp.type == str:
-                field.type = 'Input_String'
+                field.type = config['Input_String']
             elif sp.type == int:
-                field.type = 'Input_Int'
+                field.type = config['Input_Int']
             elif sp.type == float:
-                field.type = 'Input_Float'
+                field.type = config['Input_Float']
             elif sp.type == bool:
-                field.type = 'Input_Bool'
-        elif sp.ui_mode == 'DROPDOWN':
-            field.type = 'Input_DropdownList'
+                field.type = config['Input_Bool']
+        elif sp.ui_mode == pct.config['SpecificTypes']['Dropdown']:
+            field.type = config['Input_DropdownList']
 
 
-        WindowData.append(fieldLabel)
-        WindowData.append(fieldNoneCheck)
-        WindowData.append(field)
+        WindowData[config['Title_UI']].append(fieldLabel)
+        WindowData[config['Additional_UI']].append(fieldNoneCheck)
+        WindowData[config['Input_UI']].append(field)
         
         curPos = [curPos[0] + 1, curPos[1]]
     
     # Generate UI for Run Script Button
-    funcField = Field('Run Script', 'Function', RunScriptFunc, [curPos[0], curPos[1] + 1])
-    WindowData.append(funcField)
+    funcField = Field('Run Script', config['Button_Function'], RunScriptFunc, [curPos[0], curPos[1] + 1])
+    WindowData[config['Button_UI']].append(funcField)
     
     return WindowData
-
-def RunScript_Basic(ui_items, ParsedCode):
-    inputs = {}
-
-    # Check for None Input
-    NoneInputNames = []
-    for item in ui_items['NONECHECK']:
-        for i in range(len(ParsedCode.script_parameters)):
-            if ParsedCode.script_parameters[i].name == item[0]:
-                if item[3] is not None:
-                    print(item[2].get())
-                    check = item[3](item[2].get())
-                    if check:
-                        NoneInputNames.append(item[0])
-                    break
-
-    # Gather Inputs from UI
-    for item in ui_items['INPUT']:
-        for i in range(len(ParsedCode.script_parameters)):
-            if ParsedCode.script_parameters[i].name == item[0]:
-                if item[3] is not None:
-                    # Check for None Input and assign
-                    if item[0] in NoneInputNames:
-                        ParsedCode.script_parameters[i].value = None
-                        ParsedCode.script_parameters[i].type = type(None)
-                    else:
-                        ParsedCode.script_parameters[i].value = item[3](item[2].get())
-                    break
-
-    # Reconstruct new code using Inputs from UI
-    code_RE = pct.ReconstructCodeText(ParsedCode)
-
-    # Run the reconstructed Code
-    print("Script Output:\n\n")
-    try:
-        exec(code_RE)
-    except:
-        print(" --- ERROR IN SCRIPT EXEC ---")
 
 # Driver Code
 # Params
 mainPath = 'TestCodes/'
 codefileName = 'Test.py'
 
-UIFormatPath = 'PythonUI/TkinterFormat.py'
-
-tempcode_Path = 'TestCodes/temp.py'
-
-WindowTitle = 'Test'
-RunScriptFunc = RunScript_Basic
+WindowTitle = 'Generated UI'
+RunScriptFunc = uigen.RunScript_Basic
+OtherFuncs = {config['Additional_NoneCheck']: uigen.SetNoneCommand_EntryDisable}
 # Params
 
 # RunCode
@@ -120,7 +96,7 @@ ParsedCode = pct.Code(mainPath + codefileName)
 ScriptParameters = ParsedCode.script_parameters
 
 # Convert to Window Data
-WindowData = GenerateWindowData(ScriptParameters, RunScriptFunc)
+WindowData = GenerateWindowData(ScriptParameters, RunScriptFunc, OtherFuncs)
 
 # Display Window
 uigen.CreateWindow(ParsedCode, WindowData, WindowTitle)

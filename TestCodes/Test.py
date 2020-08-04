@@ -28,7 +28,7 @@ def POWER(a, b):
 # Params
 IntVal = -10
 BoolVal = False
-StrVal = 'LOLHI'
+StrVal = "LOLHI"
 FloatVal = -12213.1313
 DropDownVal = 1 #TYPE: DROPDOWN 23,46,97
 # Params

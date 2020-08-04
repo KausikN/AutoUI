@@ -1,0 +1,22 @@
+{
+    "SpecificType_Declare": "#TYPE:", 
+    "SpecificTypes": {
+        "Dropdown": "DROPDOWN"
+    }, 
+
+    "String_Detect": ["\"", "'"], 
+
+    "Desc_Detect": ["\"\"\"", "'''"], 
+
+    "Import_Detect": ["^import", "^from .* import"], 
+
+    "Function_Start": "^def", 
+    "Function_End": "#FEND", 
+    "Function_Name_Detect": "^def(.*)\\(", 
+    "Function_Parameters_Detect": "^def.*\\((.*)\\)", 
+
+    "ScriptParams_Start": "# Params", 
+    "ScriptParams_End": "# Params", 
+    "ScriptParams_Name_Detect": "^(.*)=", 
+    "ScriptParams_Value_Detect": "^.*=(.*)"
+}
