@@ -1,7 +1,8 @@
 {
     "SpecificType_Declare": "#TYPE:", 
     "SpecificTypes": {
-        "Dropdown": "DROPDOWN"
+        "Dropdown": "SELECTVAL", 
+        "FileSelect": "FILE"
     }, 
 
     "String_Detect": ["\"", "'"], 

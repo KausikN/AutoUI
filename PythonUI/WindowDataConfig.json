@@ -5,12 +5,15 @@
     "Input_Int": "INPUT_INT", 
     "Input_Float": "INPUT_FLOAT", 
     "Input_DropdownList": "INPUT_DROPDOWNLIST", 
+    "Input_FileSelect": "INPUT_FILESELECT", 
 
     "Title_UI": "TITLE_UI", 
     "Title_Label": "LABEL", 
 
     "Additional_UI": "ADDITIONAL_UI", 
     "Additional_NoneCheck": "NONECHECK", 
+    "Additional_DataShow": "DATASHOW", 
+    "Additional_FileSelect": "FILESELECT", 
 
     "Button_UI": "BUTTON_UI", 
     "Button_Function": "FUNCTION"

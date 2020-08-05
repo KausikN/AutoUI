@@ -27,6 +27,8 @@ def CreateWindow(CodeData, WindowData, WindowTitle):
     root = Tk()
     root.title(WindowTitle)
 
+    UI_ITEMS = {config['Input_UI']: ui_items_input, config['Additional_UI']: ui_items_additional}
+
     # Input UI
     for field in WindowData[config['Input_UI']]:
         val = None
@@ -35,6 +37,7 @@ def CreateWindow(CodeData, WindowData, WindowTitle):
         if field.type == config['Input_String']:
             val = StringVar(root)
             val.set(str(field.value))
+            val.trace('w', partial(field.command, UI_ITEMS, field.name))
             e = Entry(root, textvariable=val)
             e.grid(row=field.location[0], column=field.location[1])
             valType = str
@@ -42,13 +45,14 @@ def CreateWindow(CodeData, WindowData, WindowTitle):
         elif field.type == config['Input_Bool']:
             val = BooleanVar(root)
             val.set(bool(field.value))
-            e = Checkbutton(root, var=val)
+            e = Checkbutton(root, var=val, command=partial(field.command, UI_ITEMS, field.name))
             e.grid(row=field.location[0], column=field.location[1])
             valType = bool
 
         elif field.type == config['Input_Int']:
             val = StringVar(root)
             val.set(str(field.value))
+            val.trace('w', partial(field.command, UI_ITEMS, field.name))
             e = Entry(root, textvariable=val)
             e.grid(row=field.location[0], column=field.location[1])
             valType = int
@@ -56,6 +60,7 @@ def CreateWindow(CodeData, WindowData, WindowTitle):
         elif field.type == config['Input_Float']:
             val = StringVar(root)
             val.set(str(field.value))
+            val.trace('w', partial(field.command, UI_ITEMS, field.name))
             e = Entry(root, textvariable=val)
             e.grid(row=field.location[0], column=field.location[1])
             valType = float
@@ -64,9 +69,17 @@ def CreateWindow(CodeData, WindowData, WindowTitle):
             OptionList = list(field.value)
             val = StringVar(root)
             val.set(str(OptionList[0]))
-            e = tk.OptionMenu(root, val, *OptionList)
+            e = tk.OptionMenu(root, val, *OptionList, command=partial(field.command, UI_ITEMS, field.name))
             e.grid(row=field.location[0], column=field.location[1])
             valType = type(OptionList[0])
+
+        elif field.type == config['Input_FileSelect']:
+            val = StringVar(root)
+            val.set('No File Selected')
+            val.trace('w', partial(field.command, UI_ITEMS, field.name))
+            e = Button(root, text="Select File", command=partial(field.value, val))
+            e.grid(row=field.location[0], column=field.location[1])
+            valType = str
 
         # Record Data
         if field.type in ui_items_input.keys():
@@ -102,6 +115,15 @@ def CreateWindow(CodeData, WindowData, WindowTitle):
             a = Checkbutton(root, var=val, command=partial(field.command, UI_ITEMS, field.name))
             a.grid(row=field.location[0], column=field.location[1])
             valType = bool
+        elif field.type == config['Additional_DataShow']:
+            val = StringVar(root)
+            if field.value is None:
+                val.set('None')
+            else:
+                val.set(str(field.value))
+            a = Label(root, textvariable=val)
+            a.grid(row=field.location[0], column=field.location[1])
+            valType = str
 
         # Record Data
         if field.type in ui_items_additional.keys():
@@ -128,29 +150,63 @@ def CreateWindow(CodeData, WindowData, WindowTitle):
     root.mainloop()
 
 # UI Commands
+def DataShow_Basic(ui_items, name, *args):
+    # Search and get the DataShow corresponding Field value
+    data = None
+    for itemTypeKey in ui_items[config['Input_UI']].keys():
+        for item in ui_items[config['Input_UI']][itemTypeKey]:
+            if name == item[0]:
+                # Check datatype
+                if pct.CheckType(item[2].get(), item[3]):
+                    data = str(item[2].get())
+                else:
+                    data = 'INVALID DATA'
+                break
+    
+    # Update the Data Show Label
+    for item in ui_items[config['Additional_UI']][config['Additional_DataShow']]:
+        if name == item[0]:
+            item[2].set(data)
+            break
+
+
+def SelectFile_BasicDialogBox(val):
+    # Create File Dialog Box
+    filename = filedialog.askopenfilename(initialdir='./', title="Select File")
+    val.set(str(filename))
+
+
 def SetNoneCommand_EntryDisable(ui_items, name):
     # Disables corresponding entry field when Set None Field is Active
-    # Search and get the NoneCheck Field Value
+    # Search and get the NoneCheck Field Value and DataShow Label
     disable = True
     for item in ui_items[config['Additional_UI']][config['Additional_NoneCheck']]:
         if name == item[0]:
             disable = item[3](item[2].get())
             break
+    
+    DataShow_Val = None
+    for item in ui_items[config['Additional_UI']][config['Additional_DataShow']]:
+        if name == item[0]:
+            DataShow_Val = item[2]
+            break
+
     # Search and get the corresponding entry field
     field = None
     for itemTypeKey in ui_items[config['Input_UI']].keys():
         for item in ui_items[config['Input_UI']][itemTypeKey]:
             if name == item[0]:
                 if disable:
+                    DataShow_Val.set('None')
                     item[1].configure(state=tk.DISABLED)
                 else:
                     item[1].configure(state=tk.NORMAL)
+                    DataShow_Val.set(str(item[2].get()))
                 break
+
 
 def RunScript_Basic(ui_items, ParsedCode):
     inputs = {}
-
-    print(ui_items.keys())
 
     # Check for None Input
     NoneInputNames = []
@@ -158,7 +214,6 @@ def RunScript_Basic(ui_items, ParsedCode):
         for i in range(len(ParsedCode.script_parameters)):
             if ParsedCode.script_parameters[i].name == item[0]:
                 if item[3] is not None:
-                    print(item[2].get())
                     check = item[3](item[2].get())
                     if check:
                         NoneInputNames.append(item[0])

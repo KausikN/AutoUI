@@ -51,10 +51,9 @@ def GenerateWindowData(ScriptParameters, RunScriptFunc, OtherFuncs):
         # Additional Fields
         fieldNoneCheck = Field(sp.name, config['Additional_NoneCheck'], False, [curPos[0], curPos[1]], OtherFuncs[config['Additional_NoneCheck']])
         fieldLabel = Field(sp.name, config['Title_Label'], sp.name, [curPos[0], curPos[1] + 1])
+        field = Field(sp.name, None, sp.value, [curPos[0], curPos[1] + 2], OtherFuncs[config['Additional_DataShow']])
+        fieldDataShow = Field(sp.name, config['Additional_DataShow'], sp.value, [curPos[0], curPos[1] + 3])
 
-        field = Field(sp.name, None, sp.value, [curPos[0], curPos[1] + 2])
-        # print(sp.ui_mode)
-        # print(sp.value)
         if sp.ui_mode == None:
             if sp.type == str:
                 field.type = config['Input_String']
@@ -66,10 +65,14 @@ def GenerateWindowData(ScriptParameters, RunScriptFunc, OtherFuncs):
                 field.type = config['Input_Bool']
         elif sp.ui_mode == pct.config['SpecificTypes']['Dropdown']:
             field.type = config['Input_DropdownList']
+        elif sp.ui_mode == pct.config['SpecificTypes']['FileSelect']:
+            field.type = config['Input_FileSelect']
+            field.value = OtherFuncs[config['Additional_FileSelect']]
 
 
         WindowData[config['Title_UI']].append(fieldLabel)
         WindowData[config['Additional_UI']].append(fieldNoneCheck)
+        WindowData[config['Additional_UI']].append(fieldDataShow)
         WindowData[config['Input_UI']].append(field)
         
         curPos = [curPos[0] + 1, curPos[1]]
@@ -87,7 +90,10 @@ codefileName = 'Test.py'
 
 WindowTitle = 'Generated UI'
 RunScriptFunc = uigen.RunScript_Basic
-OtherFuncs = {config['Additional_NoneCheck']: uigen.SetNoneCommand_EntryDisable}
+OtherFuncs = {config['Additional_NoneCheck']: uigen.SetNoneCommand_EntryDisable, 
+                config['Additional_FileSelect']: uigen.SelectFile_BasicDialogBox, 
+                config['Additional_DataShow']: uigen.DataShow_Basic
+            }
 # Params
 
 # RunCode

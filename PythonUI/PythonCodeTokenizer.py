@@ -66,13 +66,22 @@ class ScriptParameter:
         # Specified Type
         SpecifiedType = True
         if config['SpecificType_Declare'] in value:
+            ValueData = re.findall('^(.*)' + config['SpecificType_Declare'], value)[-1].strip()
             SpecTypeData = re.findall(config['SpecificType_Declare'] + '(.*)', value)[-1].strip().split(' ')
+            # Dropdown Type
             if SpecTypeData[0] == config['SpecificTypes']['Dropdown']:
                 self.ui_mode = config['SpecificTypes']['Dropdown']
                 choices = SpecTypeData[1].split(',')
                 sp_temp = ScriptParameter('temp', choices[0])
                 self.type = sp_temp.type
                 self.value = list(map(self.type, choices))
+            # File Select Type
+            elif SpecTypeData[0] == config['SpecificTypes']['FileSelect']:
+                self.ui_mode = config['SpecificTypes']['FileSelect']
+                self.value = ValueData[1:-1]
+                self.type = type(self.value)
+                self.value_prefix = ValueData[0]
+                self.value_suffix = ValueData[-1]
             else: # Empty Specification - IGNORE
                 SpecifiedType = False
         else:

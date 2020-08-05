@@ -30,7 +30,7 @@ IntVal = -10
 BoolVal = False
 StrVal = "LOLHI"
 FloatVal = -12213.1313
-DropDownVal = 1 #TYPE: DROPDOWN 23,46,97
+DropDownVal = 1 #TYPE: SELECTVAL 23,46,97
 # Params
 print("Inputs:")
 print("IntVal:", IntVal)
@@ -49,3 +49,7 @@ print("DIFF:", IntDiff)
 print("MULT", FloatMult)
 print("AND", BoolAND)
 print("DROPDOWN POWER:", DropdownPOWER)
+
+# Params
+fileVal = '' #TYPE: FILE
+# Params
