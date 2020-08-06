@@ -3,6 +3,7 @@ Script to generate Tkinter UI programmatically
 '''
 
 # Imports
+import os
 import json
 import tkinter as tk
 from tkinter import *
@@ -77,7 +78,7 @@ def CreateWindow(CodeData, WindowData, WindowTitle):
             val = StringVar(root)
             val.set('No File Selected')
             val.trace('w', partial(field.command, UI_ITEMS, field.name))
-            e = Button(root, text="Select File", command=partial(field.value, val))
+            e = Button(root, text="Select File", command=partial(field.value, val, field.otherData))
             e.grid(row=field.location[0], column=field.location[1])
             valType = str
 
@@ -150,6 +151,7 @@ def CreateWindow(CodeData, WindowData, WindowTitle):
     root.mainloop()
 
 # UI Commands
+# Data Display Functions
 def DataShow_Basic(ui_items, name, *args):
     # Search and get the DataShow corresponding Field value
     data = None
@@ -169,13 +171,47 @@ def DataShow_Basic(ui_items, name, *args):
             item[2].set(data)
             break
 
+def DataShow_WithImgDisplay(ui_items, name, *args):
+    # Search and get the DataShow corresponding Field value
+    data = None
+    for itemTypeKey in ui_items[config['Input_UI']].keys():
+        for item in ui_items[config['Input_UI']][itemTypeKey]:
+            if name == item[0]:
+                # Check datatype
+                if pct.CheckType(item[2].get(), item[3]):
+                    data = str(item[2].get())
+                else:
+                    data = 'INVALID DATA'
+                break
+    
+    # Update the Data Show Label
+    for item in ui_items[config['Additional_UI']][config['Additional_DataShow']]:
+        if name == item[0]:
+            item[2].set(data)
+            # Check if data is image path, if so display image in label instead
+            if os.path.isfile(data) and os.path.splitext(data)[-1] in pct.config['Image_Extensions']:
+                item[1].configure(image=ImageTk.PhotoImage(Image.open(data)))
+            break
 
-def SelectFile_BasicDialogBox(val):
+# Select File Functions
+def SelectFile_BasicDialogBox(val, otherData):
     # Create File Dialog Box
     filename = filedialog.askopenfilename(initialdir='./', title="Select File")
     val.set(str(filename))
 
+def SelectFile_ExtCheck(val, otherData):
+    # Create File Dialog Box
+    filename = filedialog.askopenfilename(initialdir='./', title="Select File")
+    # Check for accepted extensions and perform extension check
+    if 'ext' in otherData.keys():
+        if os.path.splitext(filename)[-1] in otherData['ext']:
+            val.set(str(filename))
+        else:
+            val.set('INVALID FILE EXTENSION')
+    else:
+        val.set(str(filename))
 
+# Set None Functions
 def SetNoneCommand_EntryDisable(ui_items, name):
     # Disables corresponding entry field when Set None Field is Active
     # Search and get the NoneCheck Field Value and DataShow Label
@@ -204,7 +240,7 @@ def SetNoneCommand_EntryDisable(ui_items, name):
                     DataShow_Val.set(str(item[2].get()))
                 break
 
-
+# Run Script Functions
 def RunScript_Basic(ui_items, ParsedCode):
     inputs = {}
 

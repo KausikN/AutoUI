@@ -16,12 +16,13 @@ config = json.load(open('PythonUI/WindowDataConfig.json', 'rb'))
 # Main Functions
 # Field Class
 class Field:
-    def __init__(self, name, Type, value, location, cmd=None):
+    def __init__(self, name, Type, value, location, cmd=None, otherData={}):
         self.name = name
         self.type = Type
         self.value = value
         self.location = location
         self.command = cmd
+        self.otherData = otherData
 
 # Generate Window Data
 def GenerateWindowData(ScriptParameters, RunScriptFunc, OtherFuncs):
@@ -68,6 +69,8 @@ def GenerateWindowData(ScriptParameters, RunScriptFunc, OtherFuncs):
         elif sp.ui_mode == pct.config['SpecificTypes']['FileSelect']:
             field.type = config['Input_FileSelect']
             field.value = OtherFuncs[config['Additional_FileSelect']]
+            if 'ext' in sp.otherData.keys():
+                field.otherData['ext'] = sp.otherData['ext']
 
 
         WindowData[config['Title_UI']].append(fieldLabel)
@@ -91,8 +94,8 @@ codefileName = 'Test.py'
 WindowTitle = 'Generated UI'
 RunScriptFunc = uigen.RunScript_Basic
 OtherFuncs = {config['Additional_NoneCheck']: uigen.SetNoneCommand_EntryDisable, 
-                config['Additional_FileSelect']: uigen.SelectFile_BasicDialogBox, 
-                config['Additional_DataShow']: uigen.DataShow_Basic
+                config['Additional_FileSelect']: uigen.SelectFile_ExtCheck, 
+                config['Additional_DataShow']: uigen.DataShow_WithImgDisplay
             }
 # Params
 

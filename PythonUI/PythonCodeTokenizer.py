@@ -56,6 +56,7 @@ class ScriptParameter:
         self.value_suffix = ''
         self.type = None
         self.ui_mode = None
+        self.otherData = {}
         self.findType(value)
     def getCodeText(self):
         if self.value is None:
@@ -82,6 +83,10 @@ class ScriptParameter:
                 self.type = type(self.value)
                 self.value_prefix = ValueData[0]
                 self.value_suffix = ValueData[-1]
+                # Check for accepted extensions
+                if len(SpecTypeData) > 1:
+                    exts = SpecTypeData[1].split(',')
+                    self.otherData['ext'] = exts
             else: # Empty Specification - IGNORE
                 SpecifiedType = False
         else:

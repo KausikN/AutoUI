@@ -1,4 +1,6 @@
 {
+    "Image_Extensions": [".png", ".jpg", ".jpeg", ".bmp", ".JPG", ".PNG"], 
+
     "SpecificType_Declare": "#TYPE:", 
     "SpecificTypes": {
         "Dropdown": "SELECTVAL", 
