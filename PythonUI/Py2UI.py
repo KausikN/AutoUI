@@ -52,7 +52,7 @@ def GenerateWindowData(ScriptParameters, RunScriptFunc, OtherFuncs):
         # Additional Fields
         fieldNoneCheck = Field(sp.name, config['Additional_NoneCheck'], False, [curPos[0], curPos[1]], OtherFuncs[config['Additional_NoneCheck']])
         fieldLabel = Field(sp.name, config['Title_Label'], sp.name, [curPos[0], curPos[1] + 1])
-        field = Field(sp.name, None, sp.value, [curPos[0], curPos[1] + 2], OtherFuncs[config['Additional_DataShow']])
+        field = Field(sp.name, None, sp.value, [curPos[0], curPos[1] + 2], OtherFuncs[config['Additional_DataShow']], {})
         fieldDataShow = Field(sp.name, config['Additional_DataShow'], sp.value, [curPos[0], curPos[1] + 3])
         fieldFileShow = Field(sp.name, config['Additional_FileShow'], sp.value, [curPos[0], curPos[1] + 4])
 
@@ -71,8 +71,7 @@ def GenerateWindowData(ScriptParameters, RunScriptFunc, OtherFuncs):
             field.type = config['Input_FileSelect']
             field.value = OtherFuncs[config['Additional_FileSelect']]
             if 'ext' in sp.otherData.keys():
-                field.otherData['ext'] = sp.otherData['ext']
-
+                field.otherData['ext'] = sp.otherData['ext'].copy()
 
         WindowData[config['Title_UI']].append(fieldLabel)
         WindowData[config['Additional_UI']].append(fieldNoneCheck)

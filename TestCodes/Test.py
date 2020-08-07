@@ -31,6 +31,8 @@ BoolVal = False
 StrVal = "LOLHI"
 FloatVal = -12213.1313
 DropDownVal = 1 #TYPE: SELECTVAL 23,46,97
+ImageVal = '' #TYPE: FILE Image
+TextVal = '' #TYPE: FILE Text
 FileVal = '' #TYPE: FILE
 # Params
 print("Inputs:")
@@ -39,6 +41,8 @@ print("BoolVal:", BoolVal)
 print("StrVal:", StrVal)
 print("FloatVal:", FloatVal)
 print("DropDownVal:", DropDownVal)
+print("ImageVal:", ImageVal)
+print("TextVal:", TextVal)
 print("FileVal:", FileVal)
 StrSum = Sum(StrVal, StrVal)
 IntDiff = Diff(IntVal, 0)

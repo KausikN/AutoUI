@@ -85,7 +85,12 @@ class ScriptParameter:
                 self.value_suffix = ValueData[-1]
                 # Check for accepted extensions
                 if len(SpecTypeData) > 1:
-                    exts = SpecTypeData[1].split(',')
+                    # Check for existing extension packs
+                    exts = None
+                    if (SpecTypeData[1].strip() + "_Extensions") in config.keys():
+                        exts = config[SpecTypeData[1].strip() + "_Extensions"]
+                    else:
+                        exts = SpecTypeData[1].split(',')
                     self.otherData['ext'] = exts
             else: # Empty Specification - IGNORE
                 SpecifiedType = False
