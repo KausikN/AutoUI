@@ -1,5 +1,6 @@
 {
     "Image_Extensions": [".png", ".jpg", ".jpeg", ".bmp", ".JPG", ".PNG"], 
+    "Text_Extensions": [".txt", ".md", ".py", ".c", ".cpp", ".js", ".html", ".htm", ".css"], 
 
     "SpecificType_Declare": "#TYPE:", 
     "SpecificTypes": {

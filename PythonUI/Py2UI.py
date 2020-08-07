@@ -54,6 +54,7 @@ def GenerateWindowData(ScriptParameters, RunScriptFunc, OtherFuncs):
         fieldLabel = Field(sp.name, config['Title_Label'], sp.name, [curPos[0], curPos[1] + 1])
         field = Field(sp.name, None, sp.value, [curPos[0], curPos[1] + 2], OtherFuncs[config['Additional_DataShow']])
         fieldDataShow = Field(sp.name, config['Additional_DataShow'], sp.value, [curPos[0], curPos[1] + 3])
+        fieldFileShow = Field(sp.name, config['Additional_FileShow'], sp.value, [curPos[0], curPos[1] + 4])
 
         if sp.ui_mode == None:
             if sp.type == str:
@@ -76,6 +77,7 @@ def GenerateWindowData(ScriptParameters, RunScriptFunc, OtherFuncs):
         WindowData[config['Title_UI']].append(fieldLabel)
         WindowData[config['Additional_UI']].append(fieldNoneCheck)
         WindowData[config['Additional_UI']].append(fieldDataShow)
+        WindowData[config['Additional_UI']].append(fieldFileShow)
         WindowData[config['Input_UI']].append(field)
         
         curPos = [curPos[0] + 1, curPos[1]]
@@ -95,7 +97,7 @@ WindowTitle = 'Generated UI'
 RunScriptFunc = uigen.RunScript_Basic
 OtherFuncs = {config['Additional_NoneCheck']: uigen.SetNoneCommand_EntryDisable, 
                 config['Additional_FileSelect']: uigen.SelectFile_ExtCheck, 
-                config['Additional_DataShow']: uigen.DataShow_WithImgDisplay
+                config['Additional_DataShow']: uigen.DataShow_WithFileDisplay
             }
 # Params
 

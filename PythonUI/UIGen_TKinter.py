@@ -109,6 +109,7 @@ def CreateWindow(CodeData, WindowData, WindowTitle):
         val = None
         a = None
         valType = None
+
         if field.type == config['Additional_NoneCheck']:
             val = BooleanVar(root)
             val.set(bool(field.value))
@@ -116,12 +117,20 @@ def CreateWindow(CodeData, WindowData, WindowTitle):
             a = Checkbutton(root, var=val, command=partial(field.command, UI_ITEMS, field.name))
             a.grid(row=field.location[0], column=field.location[1])
             valType = bool
+
         elif field.type == config['Additional_DataShow']:
             val = StringVar(root)
             if field.value is None:
                 val.set('None')
             else:
                 val.set(str(field.value))
+            a = Label(root, textvariable=val)
+            a.grid(row=field.location[0], column=field.location[1])
+            valType = str
+
+        elif field.type == config['Additional_FileShow']:
+            val = StringVar(root)
+            val.set(" ")
             a = Label(root, textvariable=val)
             a.grid(row=field.location[0], column=field.location[1])
             valType = str
@@ -171,7 +180,7 @@ def DataShow_Basic(ui_items, name, *args):
             item[2].set(data)
             break
 
-def DataShow_WithImgDisplay(ui_items, name, *args):
+def DataShow_WithFileDisplay(ui_items, name, *args):
     # Search and get the DataShow corresponding Field value
     data = None
     for itemTypeKey in ui_items[config['Input_UI']].keys():
@@ -183,14 +192,35 @@ def DataShow_WithImgDisplay(ui_items, name, *args):
                 else:
                     data = 'INVALID DATA'
                 break
+
+    # Update File Show Label
+    for item in ui_items[config['Additional_UI']][config['Additional_FileShow']]:
+        if name == item[0]:
+            # Check if valid file
+            if os.path.isfile(data):
+                ext = os.path.splitext(data)[-1]
+                # Check if data is image
+                if ext in pct.config['Image_Extensions']:
+                    item[2].set("Image")
+                    item[1].textvariable = ''
+                    item[1].image = ImageTk.PhotoImage(Image.open(data))
+                    item[1].configure(image=item[1].image, textvariable='')
+                # Check if text file
+                elif ext in pct.config['Text_Extensions']:
+                    item[1].image = ''
+                    item[2].set(str(open(data, 'r').read()))
+                    item[1].configure(image='', textvariable=item[2])
+                # If None dont display anything
+                else:
+                    item[1].image = ''
+                    item[2].set("Unknown File Format")
+                    item[1].configure(image='', textvariable=item[2])
+            break
     
     # Update the Data Show Label
     for item in ui_items[config['Additional_UI']][config['Additional_DataShow']]:
         if name == item[0]:
-            item[2].set(data)
-            # Check if data is image path, if so display image in label instead
-            if os.path.isfile(data) and os.path.splitext(data)[-1] in pct.config['Image_Extensions']:
-                item[1].configure(image=ImageTk.PhotoImage(Image.open(data)))
+            item[2].set((data))
             break
 
 # Select File Functions
@@ -214,13 +244,18 @@ def SelectFile_ExtCheck(val, otherData):
 # Set None Functions
 def SetNoneCommand_EntryDisable(ui_items, name):
     # Disables corresponding entry field when Set None Field is Active
-    # Search and get the NoneCheck Field Value and DataShow Label
+    # Search and get the NoneCheck Field Value and DataShow Label and FileShow Label
     disable = True
     for item in ui_items[config['Additional_UI']][config['Additional_NoneCheck']]:
         if name == item[0]:
             disable = item[3](item[2].get())
             break
     
+    FileShow_Item = None
+    for item in ui_items[config['Additional_UI']][config['Additional_FileShow']]:
+        if name == item[0]:
+            FileShow_Item = item[1]
+            break
     DataShow_Val = None
     for item in ui_items[config['Additional_UI']][config['Additional_DataShow']]:
         if name == item[0]:
@@ -234,8 +269,10 @@ def SetNoneCommand_EntryDisable(ui_items, name):
             if name == item[0]:
                 if disable:
                     DataShow_Val.set('None')
+                    FileShow_Item.configure(state=tk.DISABLED)
                     item[1].configure(state=tk.DISABLED)
                 else:
+                    FileShow_Item.configure(state=tk.NORMAL)
                     item[1].configure(state=tk.NORMAL)
                     DataShow_Val.set(str(item[2].get()))
                 break
