@@ -64,6 +64,11 @@ class ScriptParameter:
         else:
             return self.name + " = " + self.value_prefix + str(self.value) + self.value_suffix
     def findType(self, value):
+        # No Type - Put as it is
+        NoType = False
+        if config['NoType_Declare'] in value:
+            self.value = value.replace(config['NoType_Declare'], '').strip()
+            self.type = str
         # Specified Type
         SpecifiedType = True
         if config['SpecificType_Declare'] in value:
@@ -72,8 +77,9 @@ class ScriptParameter:
             # Dropdown Type
             if SpecTypeData[0] == config['SpecificTypes']['Dropdown']:
                 self.ui_mode = config['SpecificTypes']['Dropdown']
-                choices = SpecTypeData[1].split(',')
+                choices = ' '.join(SpecTypeData[1:]).split(',')
                 sp_temp = ScriptParameter('temp', choices[0])
+                choices[0] = sp_temp.value
                 self.type = sp_temp.type
                 self.value = list(map(self.type, choices))
             # File Select Type
@@ -92,6 +98,13 @@ class ScriptParameter:
                     else:
                         exts = SpecTypeData[1].split(',')
                     self.otherData['ext'] = exts
+            # Dir Select Type
+            elif SpecTypeData[0] == config['SpecificTypes']['DirectorySelect']:
+                self.ui_mode = config['SpecificTypes']['DirectorySelect']
+                self.value = ValueData[1:-1]
+                self.type = type(self.value)
+                self.value_prefix = ValueData[0]
+                self.value_suffix = ValueData[-1]
             else: # Empty Specification - IGNORE
                 SpecifiedType = False
         else:
@@ -114,7 +127,7 @@ class ScriptParameter:
                 self.value_suffix = value[-1]
             # Other Types
             else:
-                Types = [float, int]
+                Types = [int, float]
 
                 TypeFound = False
                 for ty in Types:
@@ -319,7 +332,7 @@ def GetScriptParameters(code_lines):
             ParamsStarted = True
             continue
         else:
-            remaining_code_lines.append(code_lines[i].strip().strip('\n'))
+            remaining_code_lines.append(code_lines[i].strip('\n'))
 
     return ScriptParameters, remaining_code_lines
 

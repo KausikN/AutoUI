@@ -82,6 +82,14 @@ def CreateWindow(CodeData, WindowData, WindowTitle):
             e.grid(row=field.location[0], column=field.location[1])
             valType = str
 
+        elif field.type == config['Input_DirectorySelect']:
+            val = StringVar(root)
+            val.set('No Dir Selected')
+            val.trace('w', partial(field.command, UI_ITEMS, field.name))
+            e = Button(root, text="Select Dir", command=partial(field.value, val, field.otherData))
+            e.grid(row=field.location[0], column=field.location[1])
+            valType = str
+
         # Record Data
         if field.type in ui_items_input.keys():
             ui_items_input[field.type].append((field.name, e, val, valType))
@@ -241,6 +249,12 @@ def SelectFile_ExtCheck(val, otherData):
     else:
         val.set(str(filename))
 
+# Select Dir Functions
+def SelectDir_BasicDialogBox(val, otherData):
+    # Create File Dialog Box
+    dirpath = filedialog.askdirectory(initialdir='./', title="Select Dir")
+    val.set(str(dirpath))
+
 # Set None Functions
 def SetNoneCommand_EntryDisable(ui_items, name):
     # Disables corresponding entry field when Set None Field is Active
@@ -279,6 +293,7 @@ def SetNoneCommand_EntryDisable(ui_items, name):
 
 # Run Script Functions
 def RunScript_Basic(ui_items, ParsedCode):
+    ERRORBLOCK = False
     inputs = {}
 
     # Check for None Input
@@ -310,11 +325,15 @@ def RunScript_Basic(ui_items, ParsedCode):
     code_RE = pct.ReconstructCodeText(ParsedCode)
 
     # Run the reconstructed Code
-    print("Script Output:\n\n")
-    try:
+    if ERRORBLOCK:
+        try:
+            print("Script Output:\n\n")
+            exec(code_RE)
+        except:
+            print(" --- ERROR IN SCRIPT EXEC ---")
+    else:
+        print("Script Output:\n\n")
         exec(code_RE)
-    except:
-        print(" --- ERROR IN SCRIPT EXEC ---")
 
 
 # Driver Code

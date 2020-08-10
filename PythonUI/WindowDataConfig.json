@@ -6,6 +6,7 @@
     "Input_Float": "INPUT_FLOAT", 
     "Input_DropdownList": "INPUT_DROPDOWNLIST", 
     "Input_FileSelect": "INPUT_FILESELECT", 
+    "Input_DirectorySelect": "INPUT_DIRSELECT", 
 
     "Title_UI": "TITLE_UI", 
     "Title_Label": "LABEL", 
@@ -15,6 +16,7 @@
     "Additional_DataShow": "DATASHOW", 
     "Additional_FileShow": "FILESHOW", 
     "Additional_FileSelect": "FILESELECT", 
+    "Additional_DirectorySelect": "DIRSELECT", 
 
     "Button_UI": "BUTTON_UI", 
     "Button_Function": "FUNCTION"

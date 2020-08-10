@@ -72,6 +72,9 @@ def GenerateWindowData(ScriptParameters, RunScriptFunc, OtherFuncs):
             field.value = OtherFuncs[config['Additional_FileSelect']]
             if 'ext' in sp.otherData.keys():
                 field.otherData['ext'] = sp.otherData['ext'].copy()
+        elif sp.ui_mode == pct.config['SpecificTypes']['DirectorySelect']:
+            field.type = config['Input_DirectorySelect']
+            field.value = OtherFuncs[config['Additional_DirectorySelect']]
 
         WindowData[config['Title_UI']].append(fieldLabel)
         WindowData[config['Additional_UI']].append(fieldNoneCheck)
@@ -90,12 +93,13 @@ def GenerateWindowData(ScriptParameters, RunScriptFunc, OtherFuncs):
 # Driver Code
 # Params
 mainPath = 'TestCodes/'
-codefileName = 'Test.py'
+codefileName = 'ImageOps.py'
 
 WindowTitle = 'Generated UI'
 RunScriptFunc = uigen.RunScript_Basic
 OtherFuncs = {config['Additional_NoneCheck']: uigen.SetNoneCommand_EntryDisable, 
                 config['Additional_FileSelect']: uigen.SelectFile_ExtCheck, 
+                config['Additional_DirectorySelect']: uigen.SelectDir_BasicDialogBox, 
                 config['Additional_DataShow']: uigen.DataShow_WithFileDisplay
             }
 # Params

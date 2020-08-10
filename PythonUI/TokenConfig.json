@@ -5,8 +5,10 @@
     "SpecificType_Declare": "#TYPE:", 
     "SpecificTypes": {
         "Dropdown": "SELECTVAL", 
-        "FileSelect": "FILE"
+        "FileSelect": "FILE", 
+        "DirectorySelect": "DIR"
     }, 
+    "NoType_Declare": "NOTYPE", 
 
     "String_Detect": ["\"", "'"], 
 
