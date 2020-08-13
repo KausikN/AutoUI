@@ -28,6 +28,7 @@ class Field:
 def GenerateWindowData(ScriptParameters, RunScriptFunc, OtherFuncs):
     WindowData = {}
     WindowData[config['Input_UI']] = []
+    WindowData[config['Output_UI']] = []
     WindowData[config['Title_UI']] = []
     WindowData[config['Additional_UI']] = []
     WindowData[config['Button_UI']] = []
@@ -87,6 +88,14 @@ def GenerateWindowData(ScriptParameters, RunScriptFunc, OtherFuncs):
     # Generate UI for Run Script Button
     funcField = Field('Run Script', config['Button_Function'], RunScriptFunc, [curPos[0], curPos[1] + 1])
     WindowData[config['Button_UI']].append(funcField)
+    curPos = [curPos[0] + 1, curPos[1]]
+
+    # Generate UI for Output Text
+    fieldOutputTextLabel = Field('LabelsTitle', config['Title_Label'], 'Output Text', [curPos[0], curPos[1]])
+    fieldOutputText = Field('OutputText', config['Output_Text'], 'NO OUTPUT', [curPos[0], curPos[1] + 1])
+    WindowData[config['Title_UI']].append(fieldOutputTextLabel)
+    WindowData[config['Output_UI']].append(fieldOutputText)
+    curPos = [curPos[0] + 1, curPos[1]]
     
     return WindowData
 
@@ -97,7 +106,8 @@ codefileName = 'ImageOps.py'
 
 WindowTitle = 'Generated UI'
 RunScriptFunc = uigen.RunScript_Basic
-OtherFuncs = {config['Additional_NoneCheck']: uigen.SetNoneCommand_EntryDisable, 
+OtherFuncs = {
+                config['Additional_NoneCheck']: uigen.SetNoneCommand_EntryDisable, 
                 config['Additional_FileSelect']: uigen.SelectFile_ExtCheck, 
                 config['Additional_DirectorySelect']: uigen.SelectDir_BasicDialogBox, 
                 config['Additional_DataShow']: uigen.DataShow_WithFileDisplay

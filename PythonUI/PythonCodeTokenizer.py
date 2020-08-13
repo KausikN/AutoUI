@@ -37,7 +37,7 @@ class Code:
         # Read the code lines
         self.code_lines = ReadPythonCode(self.code_path)
         # Tokenize and get all the required parts of the code
-        self.script_desc, self.imports, self.functions, self.script_parameters, self.driver_code = PythonCode_Tokenize(self.code_lines)
+        self.script_desc, self.imports, self.classes, self.functions, self.script_parameters, self.driver_code = PythonCode_Tokenize(self.code_lines)
 
 # Function Class
 class Function:
@@ -45,6 +45,12 @@ class Function:
         self.name = name
         self.desc = desc
         self.parameters = parameters
+        self.code = code
+
+# Classes Class
+class Class:
+    def __init__(self, name, code):
+        self.name = name
         self.code = code
 
 # Script Parameters
@@ -172,10 +178,10 @@ def PythonCode_Tokenize(code_lines, verbose=False):
     code_lines = remaining_code_lines
     if verbose:
         print("Imports:\n", Imports)
-        # print("Code after Imports:\n", code_lines)
+        # print("Code after Imports:\n", code_lines)  
 
     # Get Functions
-    Functions, remaining_code_lines = GetFunctions(code_lines)
+    Functions, Classes, remaining_code_lines = GetClassesFunctions(code_lines)
     code_lines = remaining_code_lines
     if verbose:
         print("Functions:\n")
@@ -199,7 +205,7 @@ def PythonCode_Tokenize(code_lines, verbose=False):
         for c in DriverCode:
             print(c)
 
-    return ScriptDesc, Imports, Functions, ScriptParameters, DriverCode
+    return ScriptDesc, Imports, Classes, Functions, ScriptParameters, DriverCode
             
 def GetScriptDesc(code_lines):
     remaining_code_lines = []
@@ -275,16 +281,36 @@ def GetImports(code_lines):
 
     return Imports, remaining_code_lines
 
-def GetFunctions(code_lines):
+def GetClassesFunctions(code_lines):
     remaining_code_lines = []
 
     Functions = []
+    Classes = []
+    ClassStart = config['Class_Start']
+    ClassEnd = config['Class_End']
     FunctionStart = config['Function_Start']
     FunctionEnd = config['Function_End']
 
     FunctionStarted = False
+    ClassStarted = False
     curFunction = None
+    curClass = None
     for i in range(len(code_lines)):
+        if ClassStarted:
+            if code_lines[i].strip().startswith(ClassEnd):
+                ClassStarted = False
+                Classes.append(curClass)
+                curClass = None
+                if i < len(code_lines)-1:
+                    remaining_code_lines = code_lines[i+1:]
+                continue
+            else:
+                curClass.code.append(code_lines[i].strip('\n'))
+        elif re.search(ClassStart, code_lines[i]) is not None:
+            ClassStarted = True
+            name = re.findall(config['Class_Name_Detect'], code_lines[i])[0].strip('\n')
+            curClass = Class(name, [])
+            continue
         if FunctionStarted:
             if code_lines[i].strip().startswith(FunctionEnd):
                 FunctionStarted = False
@@ -302,10 +328,10 @@ def GetFunctions(code_lines):
             curFunction = Function(name, '', parameters, [])
             continue
 
-    if len(Functions) == 0:
+    if len(Functions) == 0 and len(Classes) == 0:
         remaining_code_lines = code_lines
 
-    return Functions, remaining_code_lines
+    return Functions, Classes, remaining_code_lines
 
 def GetScriptParameters(code_lines):
     remaining_code_lines = []
@@ -356,6 +382,9 @@ def ReconstructCodeText(code_data):
 
     # Reconstruct Main Functions
     code_text.append("# Main Functions")
+    for c in code_data.classes:
+        code_text.append("class " + c.name + ":")
+        code_text.extend(c.code)
     for f in code_data.functions:
         code_text.append("def " + f.name + "(" + ', '.join(f.parameters) + "):")
         code_text.extend(f.code)

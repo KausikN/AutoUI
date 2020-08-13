@@ -16,6 +16,9 @@
 
     "Import_Detect": ["^import", "^from .* import"], 
 
+    "Class_Start": "^class", 
+    "Class_End": "#CEND", 
+    "Class_Name_Detect": "^class(.*):", 
     "Function_Start": "^def", 
     "Function_End": "#FEND", 
     "Function_Name_Detect": "^def(.*)\\(", 

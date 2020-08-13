@@ -1,4 +1,6 @@
 {
+    "Window_MaxSize": [1388, 702], 
+
     "Input_UI": "INPUT_UI", 
     "Input_String": "INPUT_STRING", 
     "Input_Bool": "INPUT_BOOL", 
@@ -7,6 +9,9 @@
     "Input_DropdownList": "INPUT_DROPDOWNLIST", 
     "Input_FileSelect": "INPUT_FILESELECT", 
     "Input_DirectorySelect": "INPUT_DIRSELECT", 
+
+    "Output_UI": "OUTPUT_UI", 
+    "Output_Text": "TEXT", 
 
     "Title_UI": "TITLE_UI", 
     "Title_Label": "LABEL", 

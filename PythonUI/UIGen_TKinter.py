@@ -11,24 +11,58 @@ from PIL import ImageTk, Image
 from tkinter import filedialog
 from functools import partial
 
+import Utils
 import PythonCodeTokenizer as pct
 
 # Load Config
 config = json.load(open('PythonUI/WindowDataConfig.json', 'rb'))
+root = None
+canvas = None
 
 # Main Functions
 def CreateWindow(CodeData, WindowData, WindowTitle):
+    global root
+    global canvas
+
+    # Init Window
+    print('Creating Window...')
+    TKWindow = Tk()
+    TKWindow.title(WindowTitle)
+    TKWindow.grid_rowconfigure(0, weight=1)
+    TKWindow.columnconfigure(0, weight=1)
+
+    master_frame = tk.Frame(TKWindow, bd=3, relief=tk.RIDGE)
+    master_frame.grid(sticky=tk.NSEW)
+    master_frame.columnconfigure(0, weight=1)
+
+    temp_frame = tk.Frame(master_frame)
+    temp_frame.grid(row=0, column=0, sticky=tk.NW)
+
+    # Add a canvas in that frame.
+    canvas = tk.Canvas(temp_frame)
+    canvas.grid(row=0, column=0)
+
+    # Create a vertical scrollbar linked to the canvas.
+    vsbar = tk.Scrollbar(temp_frame, orient=tk.VERTICAL, command=canvas.yview)
+    vsbar.grid(row=0, column=1, sticky=tk.NS)
+    canvas.configure(yscrollcommand=vsbar.set)
+
+    # Create a horizontal scrollbar linked to the canvas.
+    hsbar = tk.Scrollbar(temp_frame, orient=tk.HORIZONTAL, command=canvas.xview)
+    hsbar.grid(row=1, column=0, sticky=tk.EW)
+    canvas.configure(xscrollcommand=hsbar.set)
+
+    # Create a frame on the canvas to contain the buttons.
+    root = tk.Frame(canvas, bd=2)
+
+    # Init UI Items
     ui_items_input = {}
     ui_items_title = {}
     ui_items_additional = {}
     ui_items_button = {}
+    ui_items_output = {}
 
-    # Init
-    print('Creating Window...')
-    root = Tk()
-    root.title(WindowTitle)
-
-    UI_ITEMS = {config['Input_UI']: ui_items_input, config['Additional_UI']: ui_items_additional}
+    UI_ITEMS = {config['Input_UI']: ui_items_input, config['Output_UI']: ui_items_output, config['Additional_UI']: ui_items_additional}
 
     # Input UI
     for field in WindowData[config['Input_UI']]:
@@ -96,6 +130,28 @@ def CreateWindow(CodeData, WindowData, WindowTitle):
         else:
             ui_items_input[field.type] = [(field.name, e, val, valType)]
 
+    # Output UI
+    for field in WindowData[config['Output_UI']]:
+        o = None
+        val = None
+        if field.type == config['Output_Text']:
+            val = StringVar(root)
+            val.set(str(field.value))
+            o = Label(root, textvariable=val)
+            # o = Text(root, height=4, width=50)
+            o.grid(row=field.location[0], column=field.location[1])
+            # TextScroll = tk.Scrollbar(root, orient=tk.VERTICAL, command=o.yview)
+            # TextScroll.grid(row=field.location[0], column=field.location[1], sticky=tk.NE)
+            # o.configure(yscrollcommand=TextScroll.set)
+            # o.insert(tk.END, str(field.value))
+            # o.configure(state=tk.DISABLED)
+        
+        # Record Data
+        if field.type in ui_items_output.keys():
+            ui_items_output[field.type].append((field.name, o, val, str))
+        else:
+            ui_items_output[field.type] = [(field.name, o, val, str)]
+
     # Title UI
     for field in WindowData[config['Title_UI']]:
         val = None
@@ -121,7 +177,7 @@ def CreateWindow(CodeData, WindowData, WindowTitle):
         if field.type == config['Additional_NoneCheck']:
             val = BooleanVar(root)
             val.set(bool(field.value))
-            UI_ITEMS = {config['Input_UI']: ui_items_input, config['Additional_UI']: ui_items_additional}
+            # UI_ITEMS = {config['Input_UI']: ui_items_input, config['Additional_UI']: ui_items_additional}
             a = Checkbutton(root, var=val, command=partial(field.command, UI_ITEMS, field.name))
             a.grid(row=field.location[0], column=field.location[1])
             valType = bool
@@ -153,7 +209,7 @@ def CreateWindow(CodeData, WindowData, WindowTitle):
     for field in WindowData[config['Button_UI']]:
         b = None
         if field.type == config['Button_Function']:
-            UI_ITEMS = {config['Input_UI']: ui_items_input, config['Additional_UI']: ui_items_additional}
+            # UI_ITEMS = {config['Input_UI']: ui_items_input, config['Additional_UI']: ui_items_additional}
             b = Button(root, text=field.name, command=partial(field.value, UI_ITEMS, CodeData))
             b.grid(row=field.location[0], column=field.location[1])
 
@@ -161,13 +217,29 @@ def CreateWindow(CodeData, WindowData, WindowTitle):
         if field.type in ui_items_button.keys():
             ui_items_button[field.type].append((field.name, b, None, None))
         else:
-            ui_items_button[field.type] = [(field.name, b, None, None)]
-            
+            ui_items_button[field.type] = [(field.name, b, None, None)]  
+
+    # Create canvas window to hold the buttons_frame.
+    canvas.create_window((0, 0), window=root, anchor=tk.NW)
+
+    UpdateScrollbarData(root, canvas)
 
     print("Window Created.\n\n")
-    root.mainloop()
+    TKWindow.mainloop()
 
 # UI Commands
+# Scrolling Functions
+def UpdateScrollbarData(root, canvas):
+    root.update_idletasks()  # Needed to make bbox info available.
+    bbox = canvas.bbox(tk.ALL)  # Get bounding box of canvas with Buttons.
+
+    # Define the scrollable region as entire canvas with only the desired
+    # number of rows and columns displayed.
+    w = Utils.Threshold(bbox[2]-bbox[1], [0, config['Window_MaxSize'][0]])
+    h = Utils.Threshold(bbox[3]-bbox[1], [0, config['Window_MaxSize'][1]])
+    # dw, dh = int((w/COLS) * COLS_DISP), int((h/ROWS) * ROWS_DISP)
+    canvas.configure(scrollregion=bbox, width=w, height=h)
+
 # Data Display Functions
 def DataShow_Basic(ui_items, name, *args):
     # Search and get the DataShow corresponding Field value
@@ -230,6 +302,9 @@ def DataShow_WithFileDisplay(ui_items, name, *args):
         if name == item[0]:
             item[2].set((data))
             break
+    
+    # Update Scrollbar Sizes
+    UpdateScrollbarData(root, canvas)
 
 # Select File Functions
 def SelectFile_BasicDialogBox(val, otherData):
@@ -291,9 +366,11 @@ def SetNoneCommand_EntryDisable(ui_items, name):
                     DataShow_Val.set(str(item[2].get()))
                 break
 
+    # Update Scrollbar Sizes
+    UpdateScrollbarData(root, canvas)
+
 # Run Script Functions
 def RunScript_Basic(ui_items, ParsedCode):
-    ERRORBLOCK = False
     inputs = {}
 
     # Check for None Input
@@ -324,16 +401,22 @@ def RunScript_Basic(ui_items, ParsedCode):
     # Reconstruct new code using Inputs from UI
     code_RE = pct.ReconstructCodeText(ParsedCode)
 
+    # print(code_RE)
+    print('\n\n')
+
     # Run the reconstructed Code
-    if ERRORBLOCK:
-        try:
-            print("Script Output:\n\n")
-            exec(code_RE)
-        except:
-            print(" --- ERROR IN SCRIPT EXEC ---")
-    else:
-        print("Script Output:\n\n")
-        exec(code_RE)
+    print("Script Output:\n\n")
+    output = Utils.RunPythonCode(code_RE)
+    print(output)
+
+    # Set Output text to Output Text UI'
+    if config['Output_Text'] in ui_items[config['Output_UI']].keys():
+        for i in range(len(ui_items[config['Output_UI']][config['Output_Text']])):
+            # ui_items[config['Output_UI']][config['Output_Text']][i][1].configure(state=tk.NORMAL)
+            # ui_items[config['Output_UI']][config['Output_Text']][i][1].insert(tk.END, output)
+            # ui_items[config['Output_UI']][config['Output_Text']][i][1].configure(state=tk.DISABLED)
+            ui_items[config['Output_UI']][config['Output_Text']][i][2].set(str(output))
+    
 
 
 # Driver Code
