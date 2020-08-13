@@ -3,7 +3,9 @@ Script to generate UI for a Python Code File
 '''
 
 # Imports
+import os
 import json
+import pickle
 
 import PythonCodeTokenizer as pct
 
@@ -112,6 +114,9 @@ OtherFuncs = {
                 config['Additional_DirectorySelect']: uigen.SelectDir_BasicDialogBox, 
                 config['Additional_DataShow']: uigen.DataShow_WithFileDisplay
             }
+
+JSONSuffix_ParsedCode = '_ParsedCode'
+JSONSuffix_ParsedCode = '_ParsedCode'
 # Params
 
 # RunCode
@@ -121,6 +126,10 @@ ScriptParameters = ParsedCode.script_parameters
 
 # Convert to Window Data
 WindowData = GenerateWindowData(ScriptParameters, RunScriptFunc, OtherFuncs)
+
+# Save Data as Pickle
+pickle.dump(ParsedCode, open(mainPath + os.path.splitext(os.path.basename(codefileName))[0] + pct.config['SaveJSON_Suffix'] + ".p", 'wb'))
+pickle.dump(WindowData, open(mainPath + os.path.splitext(os.path.basename(codefileName))[0] + config['SaveJSON_Suffix'] + ".p", 'wb'))
 
 # Display Window
 uigen.CreateWindow(ParsedCode, WindowData, WindowTitle)

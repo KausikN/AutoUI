@@ -1,4 +1,6 @@
 {
+    "SaveJSON_Suffix": "_WindowData", 
+
     "Window_MaxSize": [1388, 702], 
 
     "Input_UI": "INPUT_UI", 
