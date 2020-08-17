@@ -1,5 +1,5 @@
 {
-    "SaveJSON_Suffix": "_WindowData", 
+    "Save_Suffix": "_WindowData", 
 
     "Window_MaxSize": [1388, 702], 
 
@@ -11,6 +11,7 @@
     "Input_DropdownList": "INPUT_DROPDOWNLIST", 
     "Input_FileSelect": "INPUT_FILESELECT", 
     "Input_DirectorySelect": "INPUT_DIRSELECT", 
+    "Input_Array": "INPUT_ARRAY", 
 
     "Output_UI": "OUTPUT_UI", 
     "Output_Text": "TEXT", 

@@ -5,38 +5,42 @@ Util Functions
 # Imports
 import sys
 from io import StringIO
-import contextlib
 
 import tkinter as tk
 from tkinter import ttk
 
 # Main Functions
 # Run String Code Functions
-@contextlib.contextmanager
-def stdoutIO(stdout=None):
-    old = sys.stdout
-    if stdout is None:
-        stdout = StringIO()
-    sys.stdout = stdout
-    yield stdout
-    sys.stdout = old
+
 
 def RunPythonCode(code, ERRORTEXT=" --- ERROR IN SCRIPT EXEC ---"):
     ERRORCHECK = False
+    RETURNDATA = False
 
-    if ERRORCHECK:
-        with stdoutIO() as s:
+    redirected_output = None
+
+    if RETURNDATA:
+        if ERRORCHECK:
             try:
+                old_stdout = sys.stdout
+                redirected_output = sys.stdout = StringIO()
                 exec(code, globals())
+                sys.stdout = old_stdout
             except:
                 print(ERRORTEXT)
-    else:
-        with stdoutIO() as s:
+        else:
+            old_stdout = sys.stdout
+            redirected_output = sys.stdout = StringIO()
             exec(code, globals())
+            sys.stdout = old_stdout
+        return redirected_output.getvalue()
 
-    print("OVER")
+    else:
+        exec(code, globals())
+        return ''
 
-    return s.getvalue()
+
+    
 
 # Other Generic Util Functions
 def Threshold(val, threshold):

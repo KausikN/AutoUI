@@ -1,5 +1,5 @@
 {
-    "SaveJSON_Suffix": "_ParsedCode", 
+    "Save_Suffix": "_ParsedCode", 
 
     "Image_Extensions": [".png", ".jpg", ".jpeg", ".bmp", ".JPG", ".PNG"], 
     "Text_Extensions": [".txt", ".md", ".py", ".c", ".cpp", ".js", ".html", ".htm", ".css"], 
@@ -13,6 +13,10 @@
     "NoType_Declare": "NOTYPE", 
 
     "String_Detect": ["\"", "'"], 
+    
+    "ArrayType_Declare": "LIST", 
+    "ArrayType_SizeRestrict_Declare": "#SIZE", 
+    "Array_Detect": [["[", "]"], ["(", ")"]], 
 
     "Desc_Detect": ["\"\"\"", "'''"], 
 

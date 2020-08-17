@@ -26,6 +26,45 @@ class Field:
         self.command = cmd
         self.otherData = otherData
 
+# Generate Field
+def GenerateField(sp, curPos, OtherFuncs):
+    field = Field(sp.name, None, sp.value, [curPos[0], curPos[1]], OtherFuncs[config['Additional_DataShow']], {})
+    if sp.ui_mode == None:
+        if sp.type == str:
+            field.type = config['Input_String']
+        elif sp.type == int:
+            field.type = config['Input_Int']
+        elif sp.type == float:
+            field.type = config['Input_Float']
+        elif sp.type == bool:
+            field.type = config['Input_Bool']
+    elif sp.ui_mode == pct.config['SpecificTypes']['Dropdown']:
+        field.type = config['Input_DropdownList']
+    elif sp.ui_mode == pct.config['SpecificTypes']['FileSelect']:
+        field.type = config['Input_FileSelect']
+        field.value = OtherFuncs[config['Additional_FileSelect']]
+        if 'ext' in sp.otherData.keys():
+            field.otherData['ext'] = sp.otherData['ext'].copy()
+    elif sp.ui_mode == pct.config['SpecificTypes']['DirectorySelect']:
+        field.type = config['Input_DirectorySelect']
+        field.value = OtherFuncs[config['Additional_DirectorySelect']]
+    elif sp.ui_mode == pct.config['ArrayType_Declare']:
+        field.type = config['Input_Array']
+        field.value = []
+        for i in range(len(sp.value)):
+            field.value.append(GenerateField(sp.value[i], [i+1, 1], OtherFuncs))
+        field.otherData['sizeRange'] = sp.otherData['sizeRange']
+        field.otherData['sizeRestrictFunc'] = OtherFuncs['List_SizeRestrict']
+        # Check Size
+        if len(field.value) < field.otherData['sizeRange'][0]:
+            for i in range(len(field.value), field.otherData['sizeRange'][0]):
+                temp_sp = pct.ScriptParameter(str(i), "Empty")
+                field.value.append(GenerateField(temp_sp, [i+1, 1], OtherFuncs))
+        elif field.otherData['sizeRange'][1] > -1 and len(field.value) > field.otherData['sizeRange'][1]:
+            field.value = field.value[:field.otherData['sizeRange'][1]]
+
+    return field
+
 # Generate Window Data
 def GenerateWindowData(ScriptParameters, RunScriptFunc, OtherFuncs):
     WindowData = {}
@@ -55,29 +94,10 @@ def GenerateWindowData(ScriptParameters, RunScriptFunc, OtherFuncs):
         # Additional Fields
         fieldNoneCheck = Field(sp.name, config['Additional_NoneCheck'], False, [curPos[0], curPos[1]], OtherFuncs[config['Additional_NoneCheck']])
         fieldLabel = Field(sp.name, config['Title_Label'], sp.name, [curPos[0], curPos[1] + 1])
-        field = Field(sp.name, None, sp.value, [curPos[0], curPos[1] + 2], OtherFuncs[config['Additional_DataShow']], {})
         fieldDataShow = Field(sp.name, config['Additional_DataShow'], sp.value, [curPos[0], curPos[1] + 3])
         fieldFileShow = Field(sp.name, config['Additional_FileShow'], sp.value, [curPos[0], curPos[1] + 4])
 
-        if sp.ui_mode == None:
-            if sp.type == str:
-                field.type = config['Input_String']
-            elif sp.type == int:
-                field.type = config['Input_Int']
-            elif sp.type == float:
-                field.type = config['Input_Float']
-            elif sp.type == bool:
-                field.type = config['Input_Bool']
-        elif sp.ui_mode == pct.config['SpecificTypes']['Dropdown']:
-            field.type = config['Input_DropdownList']
-        elif sp.ui_mode == pct.config['SpecificTypes']['FileSelect']:
-            field.type = config['Input_FileSelect']
-            field.value = OtherFuncs[config['Additional_FileSelect']]
-            if 'ext' in sp.otherData.keys():
-                field.otherData['ext'] = sp.otherData['ext'].copy()
-        elif sp.ui_mode == pct.config['SpecificTypes']['DirectorySelect']:
-            field.type = config['Input_DirectorySelect']
-            field.value = OtherFuncs[config['Additional_DirectorySelect']]
+        field = GenerateField(sp, [curPos[0], curPos[1]+2], OtherFuncs)
 
         WindowData[config['Title_UI']].append(fieldLabel)
         WindowData[config['Additional_UI']].append(fieldNoneCheck)
@@ -103,8 +123,10 @@ def GenerateWindowData(ScriptParameters, RunScriptFunc, OtherFuncs):
 
 # Driver Code
 # Params
+loadData = False
+
 mainPath = 'TestCodes/'
-codefileName = 'ImageOps.py'
+codefileName = 'ListCode.py'
 
 WindowTitle = 'Generated UI'
 RunScriptFunc = uigen.RunScript_Basic
@@ -112,24 +134,28 @@ OtherFuncs = {
                 config['Additional_NoneCheck']: uigen.SetNoneCommand_EntryDisable, 
                 config['Additional_FileSelect']: uigen.SelectFile_ExtCheck, 
                 config['Additional_DirectorySelect']: uigen.SelectDir_BasicDialogBox, 
-                config['Additional_DataShow']: uigen.DataShow_WithFileDisplay
+                config['Additional_DataShow']: uigen.DataShow_WithFileDisplay, 
+                'List_SizeRestrict': uigen.ListSizeUpdate_SizeRangeCheck
             }
-
-JSONSuffix_ParsedCode = '_ParsedCode'
-JSONSuffix_ParsedCode = '_ParsedCode'
 # Params
 
 # RunCode
-# Tokenise to get Parse Code
-ParsedCode = pct.Code(mainPath + codefileName)
-ScriptParameters = ParsedCode.script_parameters
+if not loadData:
+    # Tokenise to get Parse Code
+    ParsedCode = pct.Code(mainPath + codefileName)
+    ScriptParameters = ParsedCode.script_parameters
 
-# Convert to Window Data
-WindowData = GenerateWindowData(ScriptParameters, RunScriptFunc, OtherFuncs)
+    # Convert to Window Data
+    WindowData = GenerateWindowData(ScriptParameters, RunScriptFunc, OtherFuncs)
 
-# Save Data as Pickle
-pickle.dump(ParsedCode, open(mainPath + os.path.splitext(os.path.basename(codefileName))[0] + pct.config['SaveJSON_Suffix'] + ".p", 'wb'))
-pickle.dump(WindowData, open(mainPath + os.path.splitext(os.path.basename(codefileName))[0] + config['SaveJSON_Suffix'] + ".p", 'wb'))
+    # Save Data as Pickle
+    pickle.dump(ParsedCode, open(mainPath + os.path.splitext(os.path.basename(codefileName))[0] + pct.config['Save_Suffix'] + ".p", 'wb'))
+    pickle.dump(WindowData, open(mainPath + os.path.splitext(os.path.basename(codefileName))[0] + config['Save_Suffix'] + ".p", 'wb'))
+
+else:
+    # Load Pre Processed Data
+    ParsedCode = pickle.load(open(mainPath + os.path.splitext(os.path.basename(codefileName))[0] + pct.config['Save_Suffix'] + ".p", 'wb'))
+    WindowData = pickle.load(open(mainPath + os.path.splitext(os.path.basename(codefileName))[0] + config['Save_Suffix'] + ".p", 'wb'))
 
 # Display Window
 uigen.CreateWindow(ParsedCode, WindowData, WindowTitle)

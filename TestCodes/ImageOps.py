@@ -98,4 +98,3 @@ plt.imshow(Output)
 plt.show()
 
 print("Ended Image Ops")
-quit()

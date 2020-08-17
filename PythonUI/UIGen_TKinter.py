@@ -1,5 +1,7 @@
 '''
 Script to generate Tkinter UI programmatically
+
+LIST DISPLAY TODO
 '''
 
 # Imports
@@ -66,63 +68,7 @@ def CreateWindow(CodeData, WindowData, WindowTitle):
 
     # Input UI
     for field in WindowData[config['Input_UI']]:
-        val = None
-        e = None
-        valType = None
-        if field.type == config['Input_String']:
-            val = StringVar(root)
-            val.set(str(field.value))
-            val.trace('w', partial(field.command, UI_ITEMS, field.name))
-            e = Entry(root, textvariable=val)
-            e.grid(row=field.location[0], column=field.location[1])
-            valType = str
-
-        elif field.type == config['Input_Bool']:
-            val = BooleanVar(root)
-            val.set(bool(field.value))
-            e = Checkbutton(root, var=val, command=partial(field.command, UI_ITEMS, field.name))
-            e.grid(row=field.location[0], column=field.location[1])
-            valType = bool
-
-        elif field.type == config['Input_Int']:
-            val = StringVar(root)
-            val.set(str(field.value))
-            val.trace('w', partial(field.command, UI_ITEMS, field.name))
-            e = Entry(root, textvariable=val)
-            e.grid(row=field.location[0], column=field.location[1])
-            valType = int
-
-        elif field.type == config['Input_Float']:
-            val = StringVar(root)
-            val.set(str(field.value))
-            val.trace('w', partial(field.command, UI_ITEMS, field.name))
-            e = Entry(root, textvariable=val)
-            e.grid(row=field.location[0], column=field.location[1])
-            valType = float
-
-        elif field.type == config['Input_DropdownList']:
-            OptionList = list(field.value)
-            val = StringVar(root)
-            val.set(str(OptionList[0]))
-            e = tk.OptionMenu(root, val, *OptionList, command=partial(field.command, UI_ITEMS, field.name))
-            e.grid(row=field.location[0], column=field.location[1])
-            valType = type(OptionList[0])
-
-        elif field.type == config['Input_FileSelect']:
-            val = StringVar(root)
-            val.set('No File Selected')
-            val.trace('w', partial(field.command, UI_ITEMS, field.name))
-            e = Button(root, text="Select File", command=partial(field.value, val, field.otherData))
-            e.grid(row=field.location[0], column=field.location[1])
-            valType = str
-
-        elif field.type == config['Input_DirectorySelect']:
-            val = StringVar(root)
-            val.set('No Dir Selected')
-            val.trace('w', partial(field.command, UI_ITEMS, field.name))
-            e = Button(root, text="Select Dir", command=partial(field.value, val, field.otherData))
-            e.grid(row=field.location[0], column=field.location[1])
-            valType = str
+        e, val, valType = GenerateInputUI(root, field, UI_ITEMS)
 
         # Record Data
         if field.type in ui_items_input.keys():
@@ -227,6 +173,89 @@ def CreateWindow(CodeData, WindowData, WindowTitle):
     print("Window Created.\n\n")
     TKWindow.mainloop()
 
+def GenerateInputUI(root, field, UI_ITEMS):
+    val = None
+    e = None
+    valType = None
+    if field.type == config['Input_String']:
+        val = StringVar(root)
+        val.set(str(field.value))
+        val.trace('w', partial(field.command, UI_ITEMS, field.name))
+        e = Entry(root, textvariable=val)
+        e.grid(row=field.location[0], column=field.location[1])
+        valType = str
+
+    elif field.type == config['Input_Bool']:
+        val = BooleanVar(root)
+        val.set(bool(field.value))
+        e = Checkbutton(root, var=val, command=partial(field.command, UI_ITEMS, field.name))
+        e.grid(row=field.location[0], column=field.location[1])
+        valType = bool
+
+    elif field.type == config['Input_Int']:
+        val = StringVar(root)
+        val.set(str(field.value))
+        val.trace('w', partial(field.command, UI_ITEMS, field.name))
+        e = Entry(root, textvariable=val)
+        e.grid(row=field.location[0], column=field.location[1])
+        valType = int
+
+    elif field.type == config['Input_Float']:
+        val = StringVar(root)
+        val.set(str(field.value))
+        val.trace('w', partial(field.command, UI_ITEMS, field.name))
+        e = Entry(root, textvariable=val)
+        e.grid(row=field.location[0], column=field.location[1])
+        valType = float
+
+    elif field.type == config['Input_DropdownList']:
+        OptionList = list(field.value)
+        val = StringVar(root)
+        val.set(str(OptionList[0]))
+        e = tk.OptionMenu(root, val, *OptionList, command=partial(field.command, UI_ITEMS, field.name))
+        e.grid(row=field.location[0], column=field.location[1])
+        valType = type(OptionList[0])
+
+    elif field.type == config['Input_FileSelect']:
+        val = StringVar(root)
+        val.set('No File Selected')
+        val.trace('w', partial(field.command, UI_ITEMS, field.name))
+        e = Button(root, text="Select File", command=partial(field.value, val, field.otherData))
+        e.grid(row=field.location[0], column=field.location[1])
+        valType = str
+
+    elif field.type == config['Input_DirectorySelect']:
+        val = StringVar(root)
+        val.set('No Dir Selected')
+        val.trace('w', partial(field.command, UI_ITEMS, field.name))
+        e = Button(root, text="Select Dir", command=partial(field.value, val, field.otherData))
+        e.grid(row=field.location[0], column=field.location[1])
+        valType = str
+
+    elif field.type == config['Input_Array']:
+        e = []
+
+        val = StringVar(root) # SIZE
+        val.set(str(len(field.value)))
+        val.trace('w', partial(field.command, UI_ITEMS, field.name))
+        
+        main_item = Frame(root)
+        e.append(main_item)
+        SizeEntry = Entry(main_item, textvariable=val)
+        SizeEntry.grid(row=0, column=0)
+
+        for f in field.value:
+            obj_e, obj_val, obj_valType = GenerateInputUI(main_item, f, None)
+            # Record Data
+            e.append((f.name, obj_e, obj_val, obj_valType))
+        
+        main_item.grid(row=field.location[0], column=field.location[1])
+        valType = int
+
+        val.trace('w', partial(field.otherData['sizeRestrictFunc'], (field.name, e, val, valType), field.otherData['sizeRange']))
+
+    return e, val, valType
+
 # UI Commands
 # Scrolling Functions
 def UpdateScrollbarData(root, canvas):
@@ -242,6 +271,8 @@ def UpdateScrollbarData(root, canvas):
 
 # Data Display Functions
 def DataShow_Basic(ui_items, name, *args):
+    if ui_items is None:
+        return
     # Search and get the DataShow corresponding Field value
     data = None
     for itemTypeKey in ui_items[config['Input_UI']].keys():
@@ -261,6 +292,8 @@ def DataShow_Basic(ui_items, name, *args):
             break
 
 def DataShow_WithFileDisplay(ui_items, name, *args):
+    if ui_items is None:
+        return
     # Search and get the DataShow corresponding Field value
     data = None
     for itemTypeKey in ui_items[config['Input_UI']].keys():
@@ -306,6 +339,58 @@ def DataShow_WithFileDisplay(ui_items, name, *args):
     # Update Scrollbar Sizes
     UpdateScrollbarData(root, canvas)
 
+# Restrict List Size Functions
+def ListSizeUpdate_SizeRangeCheck(item, valRange, *args):
+    main_item = item[1][0]
+    child_items = item[1][1:]
+    val = item[2]
+
+    original_size = len(child_items)
+
+    # Check List Size Range
+    if pct.CheckType(val.get(), int):
+        new_size = int(val.get())
+        if new_size < valRange[0]:
+            val.set(str(valRange[0]))
+        elif new_size > valRange[1]:
+            val.set(str(valRange[1]))
+
+        # Update List UI
+        new_size = int(val.get())
+        # Reduce
+        if new_size <= original_size:
+            for i in range(len(child_items)):
+                if i < new_size:
+                    child_items[i][1].grid(row=i+1, column=1)
+                else:
+                    child_items[i][1].grid_remove()
+        # Expand
+        if new_size > original_size:
+            ref_widget = child_items[0]
+            extra_items = []
+            for i in range(new_size):
+                if i < original_size:
+                    child_items[i][1].grid(row=i+1, column=1)
+                    continue
+                # Clone the first child to form new children
+                if ref_widget[3] == bool:
+                    clone_val = BooleanVar(main_item)
+                    clone_val.set(False)
+                    clone = Checkbutton(main_item, var=clone_val)
+                    clone_valType = bool
+                else:
+                    clone_val = StringVar(main_item)
+                    clone_val.set(ref_widget[2].get())
+                    clone = Entry(main_item, textvariable=clone_val)
+                    clone_valType = ref_widget[3]
+                
+                # Apply Clone Position
+                clone.grid(row=i+1, column=1)
+                extra_items.append((str(i), clone, clone_val, clone_valType))
+            child_items.extend(extra_items)
+            item[1].extend(extra_items)
+
+
 # Select File Functions
 def SelectFile_BasicDialogBox(val, otherData):
     # Create File Dialog Box
@@ -332,6 +417,8 @@ def SelectDir_BasicDialogBox(val, otherData):
 
 # Set None Functions
 def SetNoneCommand_EntryDisable(ui_items, name):
+    if ui_items is None:
+        return
     # Disables corresponding entry field when Set None Field is Active
     # Search and get the NoneCheck Field Value and DataShow Label and FileShow Label
     disable = True
@@ -359,10 +446,18 @@ def SetNoneCommand_EntryDisable(ui_items, name):
                 if disable:
                     DataShow_Val.set('None')
                     FileShow_Item.configure(state=tk.DISABLED)
-                    item[1].configure(state=tk.DISABLED)
+                    if type(item[1]) == list:
+                        for i in range(1, len(item[1])):
+                            item[1][i][1].configure(state=tk.DISABLED)
+                    else:
+                        item[1].configure(state=tk.DISABLED)
                 else:
                     FileShow_Item.configure(state=tk.NORMAL)
-                    item[1].configure(state=tk.NORMAL)
+                    if type(item[1]) == list:
+                        for i in range(1, len(item[1])):
+                            item[1][i][1].configure(state=tk.NORMAL)
+                    else:
+                        item[1].configure(state=tk.NORMAL)
                     DataShow_Val.set(str(item[2].get()))
                 break
 
@@ -371,6 +466,8 @@ def SetNoneCommand_EntryDisable(ui_items, name):
 
 # Run Script Functions
 def RunScript_Basic(ui_items, ParsedCode):
+    if ui_items is None:
+        return
     inputs = {}
 
     # Check for None Input
@@ -394,6 +491,10 @@ def RunScript_Basic(ui_items, ParsedCode):
                         if item[0] in NoneInputNames:
                             ParsedCode.script_parameters[i].value = None
                             ParsedCode.script_parameters[i].type = type(None)
+                        elif type(item[1]) == list:
+                            ParsedCode.script_parameters[i].otherData['ListData'] = []
+                            for it in range(1, int(item[2].get())+1):
+                                ParsedCode.script_parameters[i].otherData['ListData'].append((item[1][it][3](item[1][it][2].get())))
                         else:
                             ParsedCode.script_parameters[i].value = item[3](item[2].get())
                         break

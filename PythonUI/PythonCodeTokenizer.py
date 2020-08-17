@@ -20,6 +20,26 @@ def isStringData(val, StringDetectors):
             return True
     return False
 
+def StringDataDetector(val, StringDetectors):
+    for sd in StringDetectors:
+        if val.startswith(sd) and val.endswith(sd):
+            return sd
+    return None
+
+def isData_DetectorBased(val, Detectors):
+    for d in Detectors:
+        if d[0] in val and d[1] in val:
+            if val.find(d[0]) < (len(val) - val[::-1].find(d[1])):
+                return True
+    return False
+
+def FindDataDetector(val, Detectors):
+    for d in Detectors:
+        if d[0] in val and d[1] in val:
+            if val.find(d[0]) < (len(val) - val[::-1].find(d[1])):
+                return d
+    return None
+
 def CheckType(value, TypeFunc):
     try: 
         TypeFunc(value)
@@ -67,8 +87,31 @@ class ScriptParameter:
     def getCodeText(self):
         if self.value is None:
             return self.name + " = " + "None"
+        elif type(self.value) == list:
+            data = []
+            for i in range(len(self.otherData['ListData'])):
+                ref_index = i
+                if i >= len(self.value):
+                    ref_index = 0
+                self.value[ref_index].value = self.otherData['ListData'][i]
+                data.append(self.value[ref_index].getValueText())
+            return self.name + " = " + self.value_prefix + ','.join(data) + self.value_suffix
         else:
             return self.name + " = " + self.value_prefix + str(self.value) + self.value_suffix
+    def getValueText(self):
+        if self.value is None:
+            return "None"
+        elif type(self.value) == list:
+            data = []
+            for i in range(len(self.otherData['ListData'])):
+                ref_index = i
+                if i >= len(self.value):
+                    ref_index = 0
+                self.value[ref_index].value = self.otherData['ListData'][i]
+                data.append(self.value[ref_index].getCodeText())
+            return self.value_prefix + ','.join(data) + self.value_suffix
+        else:
+            return self.value_prefix + str(self.value) + self.value_suffix
     def findType(self, value):
         # No Type - Put as it is
         NoType = False
@@ -127,10 +170,31 @@ class ScriptParameter:
                 self.type = type(self.value)
             # String Type
             elif isStringData(value, config['String_Detect']):
-                self.value = value[1:-1]
+                detectedDetector = StringDataDetector(value, config['String_Detect'])
+                self.value = value[len(detectedDetector):-len(detectedDetector)]
                 self.type = type(self.value)
                 self.value_prefix = value[0]
                 self.value_suffix = value[-1]
+            # Array Type
+            elif isData_DetectorBased(value, config['Array_Detect']):
+                self.otherData['sizeRange'] = [0, -1]
+                if config['ArrayType_SizeRestrict_Declare'] in value:
+                    sizeRange = re.findall(config['ArrayType_SizeRestrict_Declare'] + '(.*)', value)[0].strip().split(',')
+                    self.otherData['sizeRange'] = [int(sizeRange[0].strip()), int(sizeRange[1].strip())]
+                    value = re.findall('^(.*)' + config['ArrayType_SizeRestrict_Declare'], value)[0].strip()
+                detectedDetector = FindDataDetector(value, config['Array_Detect'])
+                self.value = value[len(detectedDetector[0]):-len(detectedDetector[1])]
+                if self.value == '':
+                    self.value = []
+                else:
+                    datalist = self.value.split(',')
+                    self.value = []
+                    for i in range(len(datalist)):
+                        self.value.append(ScriptParameter(str(i), datalist[i]))
+                self.type = config['ArrayType_Declare']
+                self.value_prefix = value[0]
+                self.value_suffix = value[-1]
+                self.ui_mode = config['ArrayType_Declare']
             # Other Types
             else:
                 Types = [int, float]
@@ -142,6 +206,11 @@ class ScriptParameter:
                         self.type = type(self.value)
                         TypeFound = True
                         break
+                        
+                if not TypeFound:
+                    # If no available type consider as no type
+                    self.value = value
+                    self.type = str
                 
             
 
