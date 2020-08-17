@@ -126,7 +126,7 @@ def GenerateWindowData(ScriptParameters, RunScriptFunc, OtherFuncs):
 loadData = False
 
 mainPath = 'TestCodes/'
-codefileName = 'Test.py'
+codefileName = 'ImageOps.py'
 
 WindowTitle = 'Generated UI'
 RunScriptFunc = uigen.RunScript_Basic

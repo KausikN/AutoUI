@@ -42,8 +42,6 @@ def ImageThreshold(a, threshold, replacementVal=[0, 255]):
 # Params
 Image_1_Path = '' #TYPE: FILE Image
 Image_2_Path = '' #TYPE: FILE Image
-Image_3_Path = '' #TYPE: FILE Image
-Image_4_Path = '' #TYPE: FILE Image
 savePath = '' #TYPE: DIR
 
 Threshold_LowEnd = 0
