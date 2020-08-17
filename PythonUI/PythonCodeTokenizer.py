@@ -118,6 +118,7 @@ class ScriptParameter:
         if config['NoType_Declare'] in value:
             self.value = value.replace(config['NoType_Declare'], '').strip()
             self.type = str
+            NoType = True
         # Specified Type
         SpecifiedType = True
         if config['SpecificType_Declare'] in value:
@@ -190,7 +191,7 @@ class ScriptParameter:
                     datalist = self.value.split(',')
                     self.value = []
                     for i in range(len(datalist)):
-                        self.value.append(ScriptParameter(str(i), datalist[i]))
+                        self.value.append(ScriptParameter(str(i), datalist[i].strip()))
                 self.type = config['ArrayType_Declare']
                 self.value_prefix = value[0]
                 self.value_suffix = value[-1]
@@ -207,7 +208,7 @@ class ScriptParameter:
                         TypeFound = True
                         break
                         
-                if not TypeFound:
+                if not TypeFound and not NoType:
                     # If no available type consider as no type
                     self.value = value
                     self.type = str

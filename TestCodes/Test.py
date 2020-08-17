@@ -28,12 +28,13 @@ def POWER(a, b):
 # Params
 IntVal = -10
 BoolVal = False
-StrVal = "LOLHI"
+StrVal = "Hi!"
 FloatVal = -12213.1313
 DropDownVal = '' #TYPE: SELECTVAL NOTYPE Sum,Diff,Mult,AND,POWER
 ImageVal = '' #TYPE: FILE Image
 TextVal = '' #TYPE: FILE Text
 FileVal = '' #TYPE: FILE
+ListVal = [1, '2', 3.0, True] #SIZE 1,5
 # Params
 print("Inputs:")
 print("IntVal:", IntVal)
@@ -44,6 +45,7 @@ print("DropDownVal:", DropDownVal)
 print("ImageVal:", ImageVal)
 print("TextVal:", TextVal)
 print("FileVal:", FileVal)
+print("ListVal:", ListVal)
 StrSum = Sum(StrVal, StrVal)
 IntDiff = Diff(IntVal, 0)
 FloatMult = Mult(FloatVal, FloatVal)
