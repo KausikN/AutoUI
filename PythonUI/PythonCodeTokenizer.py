@@ -7,7 +7,7 @@ import re
 import json
 
 # Load Config
-config = json.load(open('PythonUI/TokenConfig.json', 'rb'))
+config = json.load(open('UIUtils/TokenConfig.json', 'rb'))
 
 # Main Functions
 # Basic Functions
@@ -47,11 +47,82 @@ def CheckType(value, TypeFunc):
     except ValueError:
         return False
 
+# JSON Code Functions
+def LoadCodeDataFromJSON(json_path):
+    codeDataJSON = json.load(open(json_path, 'rb'))
+
+    # Assign Window Title
+    WindowTitle = codeDataJSON['WindowTitle']
+
+    # Assign Basic Data
+    codeData = Code()
+    codeData.code_path = codeDataJSON['code_path']
+    codeData.code_lines = ReadPythonCode(codeData.code_path)
+    # Assign Script Desc, Imports, Driver Code
+    codeData.script_desc = codeDataJSON['script_desc']
+    codeData.imports = codeDataJSON['imports']
+    # Assign Classes
+    codeData.classes = []
+    for cd in codeDataJSON['classes']:
+        c = Class(cd['name'], cd['code'])
+        codeData.classes.append(c)
+    # Assign Functions
+    codeData.functions = []
+    for fd in codeDataJSON['functions']:
+        f = Function(fd['name'], fd['desc'], fd['parameters'], fd['code'])
+        codeData.functions.append(f)
+    # Assign Script Parameters
+    codeData.script_parameters = []
+    for sd in codeDataJSON['script_parameters']:
+        s = ScriptParameter(sd['name'], sd['value'])
+        codeData.script_parameters.append(s)
+    # Assign Driver Code
+    codeData.driver_code = codeDataJSON['driver_code']
+
+    return codeData, WindowTitle
+
+def WriteCodeDataToJSON(codeData, json_path, WindowTitle='Generated UI'):
+    codeDataJSON = {}
+
+    # Assign Window Title
+    codeDataJSON['WindowTitle'] = WindowTitle
+
+    # Assign Basic Data
+    codeDataJSON['code_path'] = codeData.code_path
+    # Assign Script Desc, Imports, Driver Code
+    codeDataJSON['script_desc'] = codeData.script_desc
+    codeDataJSON['imports'] = codeData.imports
+    # Assign Classes
+    codeDataJSON['classes'] = []
+    for cd in codeData.classes:
+        c = {'name': cd.name, 'code': c.code}
+        codeDataJSON['classes'].append(c)
+    # Assign Functions
+    codeDataJSON['functions'] = []
+    for fd in codeData.functions:
+        f = {'name': fd.name, 'desc': fd.desc, 'parameters': fd.parameters, 'code': fd.code}
+        codeDataJSON['functions'].append(f)
+    # Assign Script Parameters
+    codeDataJSON['script_parameters'] = []
+    for sd in codeDataJSON['script_parameters']:
+        s = {'name': sd.name, 'value': sd.valueText}
+        codeDataJSON['script_parameters'].append(s)
+    # Assign Driver Code
+    codeDataJSON['driver_code'] = codeData.driver_code
+
+    json.dump(codeDataJSON, open(json_path, 'wb'))
+
+
 # Code Class
 class Code:
-    def __init__(self, path):
-        self.code_path = path
-        self.tokenize()
+    def __init__(self, path=None):
+        if path is not None:
+            self.code_path = path
+            self.tokenize()
+        else:
+            self.code_path = None
+            self.code_lines = None
+            self.script_desc, self.imports, self.classes, self.functions, self.script_parameters, self.driver_code = '', [], [], [], [], ''
 
     def tokenize(self):
         # Read the code lines
@@ -77,6 +148,7 @@ class Class:
 class ScriptParameter:
     def __init__(self, name, value):
         self.name = name
+        self.valueText = value
         self.value = value
         self.value_prefix = ''
         self.value_suffix = ''
@@ -115,6 +187,12 @@ class ScriptParameter:
     def findType(self, value):
         # No Type - Put as it is
         NoType = False
+        self.otherData['multiple_lines_string'] = False
+        # String MultiLine Preprocess
+        if value.strip().endswith(config['String_MultiLine_Declare']):
+            self.otherData['multiple_lines_string'] = True
+            value = value.strip().rstrip(config['String_MultiLine_Declare'])
+
         if config['NoType_Declare'] in value:
             self.value = value.replace(config['NoType_Declare'], '').strip()
             self.type = str
@@ -176,13 +254,22 @@ class ScriptParameter:
                 self.type = type(self.value)
                 self.value_prefix = value[0]
                 self.value_suffix = value[-1]
+                
             # Array Type
             elif isData_DetectorBased(value, config['Array_Detect']):
-                self.otherData['sizeRange'] = [0, -1]
-                if config['ArrayType_SizeRestrict_Declare'] in value:
-                    sizeRange = re.findall(config['ArrayType_SizeRestrict_Declare'] + '(.*)', value)[0].strip().split(',')
-                    self.otherData['sizeRange'] = [int(sizeRange[0].strip()), int(sizeRange[1].strip())]
-                    value = re.findall('^(.*)' + config['ArrayType_SizeRestrict_Declare'], value)[0].strip()
+                self.otherData['sizeRange'] = [0, 5]
+
+                SizeCheck = False
+                for ad in config['Array_Detect']:
+                    if config['ArrayType_SizeRestrict_Declare'] in value.split(ad[1])[-1] and ad[1] in value:
+                        SizeCheck = True
+                        print(value)
+                        print(re.findall(config['ArrayType_SizeRestrict_Declare'] + '(.*)', value.split(ad[1])[-1])[-1])
+                        sizeRange = re.findall(config['ArrayType_SizeRestrict_Declare'] + '(.*)', value.split(ad[1])[-1])[-1].strip().split('$')
+                        self.otherData['sizeRange'] = [int(sizeRange[0].strip()), int(sizeRange[1].strip())]
+                        value = re.findall('^(.*)' + config['ArrayType_SizeRestrict_Declare'], value)[0].strip()
+                        break
+
                 detectedDetector = FindDataDetector(value, config['Array_Detect'])
                 self.value = value[len(detectedDetector[0]):-len(detectedDetector[1])]
                 if self.value == '':
@@ -413,6 +500,7 @@ def GetScriptParameters(code_lines):
     ParamsStarted = False
     curParams = []
     for i in range(len(code_lines)):
+        print(code_lines[i])
         if ParamsStarted:
             if code_lines[i].strip().startswith(ParamsEnd):
                 ParamsStarted = False

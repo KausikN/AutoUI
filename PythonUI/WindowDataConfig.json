@@ -5,6 +5,7 @@
 
     "Input_UI": "INPUT_UI", 
     "Input_String": "INPUT_STRING", 
+    "Input_StringMultiLine": "INPUT_STRINGMULTILINE",
     "Input_Bool": "INPUT_BOOL", 
     "Input_Int": "INPUT_INT", 
     "Input_Float": "INPUT_FLOAT", 

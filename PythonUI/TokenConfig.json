@@ -13,6 +13,7 @@
     "NoType_Declare": "NOTYPE", 
 
     "String_Detect": ["\"", "'"], 
+    "String_MultiLine_Declare": "#MULTILINE", 
     
     "ArrayType_Declare": "LIST", 
     "ArrayType_SizeRestrict_Declare": "#SIZE", 

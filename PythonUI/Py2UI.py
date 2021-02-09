@@ -7,13 +7,13 @@ import os
 import json
 import pickle
 
-import PythonCodeTokenizer as pct
+from UIUtils import PythonCodeTokenizer as pct
 
 # For Tkinter UI Generation
-import UIGen_TKinter as uigen
+from UIUtils import UIGen_TKinter as uigen
 
 # Load Config
-config = json.load(open('PythonUI/WindowDataConfig.json', 'rb'))
+config = json.load(open('UIUtils/WindowDataConfig.json', 'rb'))
 
 # Main Functions
 # Field Class
@@ -31,7 +31,10 @@ def GenerateField(sp, curPos, OtherFuncs):
     field = Field(sp.name, None, sp.value, [curPos[0], curPos[1]], OtherFuncs[config['Additional_DataShow']], {})
     if sp.ui_mode == None:
         if sp.type == str:
-            field.type = config['Input_String']
+            if sp.otherData['multiple_lines_string']:
+                field.type = config['Input_StringMultiLine']
+            else:
+                field.type = config['Input_String']
         elif sp.type == int:
             field.type = config['Input_Int']
         elif sp.type == float:
@@ -94,15 +97,20 @@ def GenerateWindowData(ScriptParameters, RunScriptFunc, OtherFuncs):
         # Additional Fields
         fieldNoneCheck = Field(sp.name, config['Additional_NoneCheck'], False, [curPos[0], curPos[1]], OtherFuncs[config['Additional_NoneCheck']])
         fieldLabel = Field(sp.name, config['Title_Label'], sp.name, [curPos[0], curPos[1] + 1])
+
         fieldDataShow = Field(sp.name, config['Additional_DataShow'], sp.value, [curPos[0], curPos[1] + 3])
         fieldFileShow = Field(sp.name, config['Additional_FileShow'], sp.value, [curPos[0], curPos[1] + 4])
 
         field = GenerateField(sp, [curPos[0], curPos[1]+2], OtherFuncs)
+        if field.type == config['Input_StringMultiLine']:
+            fieldDataShow.value = ""
+            fieldFileShow.value = ""
 
         WindowData[config['Title_UI']].append(fieldLabel)
         WindowData[config['Additional_UI']].append(fieldNoneCheck)
-        WindowData[config['Additional_UI']].append(fieldDataShow)
-        WindowData[config['Additional_UI']].append(fieldFileShow)
+        if not field.type == config['Input_StringMultiLine']:
+            WindowData[config['Additional_UI']].append(fieldDataShow)
+            WindowData[config['Additional_UI']].append(fieldFileShow)
         WindowData[config['Input_UI']].append(field)
         
         curPos = [curPos[0] + 1, curPos[1]]
@@ -122,40 +130,68 @@ def GenerateWindowData(ScriptParameters, RunScriptFunc, OtherFuncs):
     return WindowData
 
 # Driver Code
-# Params
-loadData = False
+def Code2UI(codePath=None):
+    # Params
+    loadData = False
+    saveData = False
 
-mainPath = 'TestCodes/'
-codefileName = 'ImageOps.py'
+    mainPath = codePath.rstrip(os.path.basename(codePath))
+    codefileName = os.path.basename(codePath)
+    # mainPath = 'TestCodes/'
+    # codefileName = 'Test.py'
 
-WindowTitle = 'Generated UI'
-RunScriptFunc = uigen.RunScript_Basic
-OtherFuncs = {
-                config['Additional_NoneCheck']: uigen.SetNoneCommand_EntryDisable, 
-                config['Additional_FileSelect']: uigen.SelectFile_ExtCheck, 
-                config['Additional_DirectorySelect']: uigen.SelectDir_BasicDialogBox, 
-                config['Additional_DataShow']: uigen.DataShow_WithFileDisplay, 
-                'List_SizeRestrict': uigen.ListSizeUpdate_SizeRangeCheck
-            }
-# Params
+    WindowTitle = 'Generated UI'
+    RunScriptFunc = uigen.RunScript_Basic
+    OtherFuncs = {
+                    config['Additional_NoneCheck']: uigen.SetNoneCommand_EntryDisable, 
+                    config['Additional_FileSelect']: uigen.SelectFile_ExtCheck, 
+                    config['Additional_DirectorySelect']: uigen.SelectDir_BasicDialogBox, 
+                    config['Additional_DataShow']: uigen.DataShow_WithFileDisplay, 
+                    'List_SizeRestrict': uigen.ListSizeUpdate_SizeRangeCheck
+                }
+    # Params
 
-# RunCode
-if not loadData:
-    # Tokenise to get Parse Code
-    ParsedCode = pct.Code(mainPath + codefileName)
+    # RunCode
+    if not loadData:
+        # Tokenise to get Parse Code
+        ParsedCode = pct.Code(mainPath + codefileName)
+        ScriptParameters = ParsedCode.script_parameters
+
+        # Convert to Window Data
+        WindowData = GenerateWindowData(ScriptParameters, RunScriptFunc, OtherFuncs)
+
+        # Save Data as Pickle
+        if saveData:
+            pickle.dump(ParsedCode, open(mainPath + os.path.splitext(os.path.basename(codefileName))[0] + pct.config['Save_Suffix'] + ".p", 'wb'))
+            pickle.dump(WindowData, open(mainPath + os.path.splitext(os.path.basename(codefileName))[0] + config['Save_Suffix'] + ".p", 'wb'))
+
+    else:
+        # Load Pre Processed Data
+        ParsedCode = pickle.load(open(mainPath + os.path.splitext(os.path.basename(codefileName))[0] + pct.config['Save_Suffix'] + ".p", 'wb'))
+        WindowData = pickle.load(open(mainPath + os.path.splitext(os.path.basename(codefileName))[0] + config['Save_Suffix'] + ".p", 'wb'))
+
+    # Display Window
+    uigen.CreateWindow(ParsedCode, WindowData, WindowTitle)
+
+def JSON2UI(jsonPath):
+    WindowTitle = 'Generated UI'
+    RunScriptFunc = uigen.RunScript_Basic
+    OtherFuncs = {
+                    config['Additional_NoneCheck']: uigen.SetNoneCommand_EntryDisable, 
+                    config['Additional_FileSelect']: uigen.SelectFile_ExtCheck, 
+                    config['Additional_DirectorySelect']: uigen.SelectDir_BasicDialogBox, 
+                    config['Additional_DataShow']: uigen.DataShow_WithFileDisplay, 
+                    'List_SizeRestrict': uigen.ListSizeUpdate_SizeRangeCheck
+    }
+
+    # Load Code Data
+    ParsedCode, WindowTitle = pct.LoadCodeDataFromJSON(jsonPath)
     ScriptParameters = ParsedCode.script_parameters
 
     # Convert to Window Data
     WindowData = GenerateWindowData(ScriptParameters, RunScriptFunc, OtherFuncs)
 
-    # Save Data as Pickle
-    pickle.dump(ParsedCode, open(mainPath + os.path.splitext(os.path.basename(codefileName))[0] + pct.config['Save_Suffix'] + ".p", 'wb'))
-    pickle.dump(WindowData, open(mainPath + os.path.splitext(os.path.basename(codefileName))[0] + config['Save_Suffix'] + ".p", 'wb'))
+    # Display Window
+    uigen.CreateWindow(ParsedCode, WindowData, WindowTitle)
 
-else:
-    # Load Pre Processed Data
-    ParsedCode = pickle.load(open(mainPath + os.path.splitext(os.path.basename(codefileName))[0] + pct.config['Save_Suffix'] + ".p", 'wb'))
-    WindowData = pickle.load(open(mainPath + os.path.splitext(os.path.basename(codefileName))[0] + config['Save_Suffix'] + ".p", 'wb'))
-
-# Display Window
-uigen.CreateWindow(ParsedCode, WindowData, WindowTitle)
+    

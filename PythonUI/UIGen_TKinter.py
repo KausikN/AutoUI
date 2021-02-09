@@ -13,11 +13,11 @@ from PIL import ImageTk, Image
 from tkinter import filedialog
 from functools import partial
 
-import Utils
-import PythonCodeTokenizer as pct
+from UIUtils import Utils
+from UIUtils import PythonCodeTokenizer as pct
 
 # Load Config
-config = json.load(open('PythonUI/WindowDataConfig.json', 'rb'))
+config = json.load(open('UIUtils/WindowDataConfig.json', 'rb'))
 root = None
 canvas = None
 
@@ -134,7 +134,7 @@ def CreateWindow(CodeData, WindowData, WindowTitle):
                 val.set('None')
             else:
                 val.set(str(field.value))
-            a = Label(root, textvariable=val)
+            a = Label(root, textvariable=val, anchor='w')
             a.grid(row=field.location[0], column=field.location[1])
             valType = str
 
@@ -183,6 +183,21 @@ def GenerateInputUI(root, field, UI_ITEMS):
         val.trace('w', partial(field.command, UI_ITEMS, field.name))
         e = Entry(root, textvariable=val)
         e.grid(row=field.location[0], column=field.location[1])
+        valType = str
+
+    elif field.type == config['Input_StringMultiLine']:
+        val = StringVar(root)
+        val.set(str(field.value))
+        # val.trace('w', partial(field.command, UI_ITEMS, field.name))
+        val = None
+
+        e = Text(root, height=10, width=100)
+        e.grid(row=field.location[0], column=field.location[1])
+        # TextScroll = tk.Scrollbar(root, orient=tk.VERTICAL, command=e.yview)
+        # TextScroll.grid(row=field.location[0], column=field.location[1], sticky=tk.NE)
+        # e.configure(yscrollcommand=TextScroll.set)
+        e.insert(tk.END, str(field.value))
+
         valType = str
 
     elif field.type == config['Input_Bool']:
@@ -494,9 +509,19 @@ def RunScript_Basic(ui_items, ParsedCode):
                         elif type(item[1]) == list:
                             ParsedCode.script_parameters[i].otherData['ListData'] = []
                             for it in range(1, int(item[2].get())+1):
-                                ParsedCode.script_parameters[i].otherData['ListData'].append((item[1][it][3](item[1][it][2].get())))
+                                dat = item[1][it][2]
+                                if dat is None:
+                                    dat = item[1][it][1]
+                                    ParsedCode.script_parameters[i].otherData['ListData'].append((item[1][it][3](dat.get("1.0", tk.END))))
+                                else:
+                                    ParsedCode.script_parameters[i].otherData['ListData'].append((item[1][it][3](dat.get())))
                         else:
-                            ParsedCode.script_parameters[i].value = item[3](item[2].get())
+                            dat = item[2]
+                            if dat is None:
+                                dat = item[1]
+                                ParsedCode.script_parameters[i].value = item[3](dat.get("1.0", tk.END))
+                            else:
+                                ParsedCode.script_parameters[i].value = item[3](dat.get())
                         break
 
     # Reconstruct new code using Inputs from UI
@@ -513,6 +538,7 @@ def RunScript_Basic(ui_items, ParsedCode):
     # Set Output text to Output Text UI'
     if config['Output_Text'] in ui_items[config['Output_UI']].keys():
         for i in range(len(ui_items[config['Output_UI']][config['Output_Text']])):
+            print("Setting Output Text")
             # ui_items[config['Output_UI']][config['Output_Text']][i][1].configure(state=tk.NORMAL)
             # ui_items[config['Output_UI']][config['Output_Text']][i][1].insert(tk.END, output)
             # ui_items[config['Output_UI']][config['Output_Text']][i][1].configure(state=tk.DISABLED)
