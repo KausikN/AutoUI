@@ -1,0 +1,12 @@
+{
+    "files_to_download": [
+        "StreamLitGUI/",
+        "app.py",
+        "AutoUI.py",
+        "Data/",
+        "Library/"
+    ],
+    "streamlit": {
+        "link": "https://kausikn-autoui.streamlit.app/"
+    }
+}

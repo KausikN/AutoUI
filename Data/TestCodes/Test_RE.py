@@ -19,7 +19,7 @@ def  AND(a, b):
 def  POWER(a, b):
     return a**b
 
-# Driver Code
+# Run Code
 # Params
 IntVal = 2
 BoolVal = False
@@ -27,7 +27,7 @@ StrVal = "LOLHI"
 FloatVal = -12213.1313
 DropDownVal = [23.0, 46.0, 97.0]
 
-# Driver Code
+# Run Code
 print("Inputs:")
 print("IntVal:", IntVal)
 print("BoolVal:", BoolVal)

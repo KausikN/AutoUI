@@ -1,0 +1,23 @@
+{
+    "added_features": {
+        "PyVenStarter": {
+            "name": "PyVenStarter",
+            "special": {
+                "choice_based": {},
+                "check_based": {}
+            }
+        },
+        "StreamlitGUI": {
+            "name": "StreamlitGUI",
+            "special": {
+                "choice_based": {
+                    "Cached": 0
+                },
+                "check_based": {
+                    "RunExecutable": true,
+                    "GenReqExecutable": false
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,332 @@
+{
+    "name": "AutoUI",
+    "repo_link": "https://github.com/KausikN/AutoUI",
+    "local_path": "D:/Github Codes and Projects/Projects/AutoUI",
+    "modules": {
+        "*.py": {
+            "name": "*",
+            "type": "missing",
+            "link": "",
+            "parent_dir": "",
+            "sub_dir": "",
+            "dependencies": []
+        },
+        "AutoUI.py": {
+            "name": "AutoUI",
+            "type": "local",
+            "link": "https://github.com/KausikN/AutoUI/blob/master/AutoUI.py",
+            "parent_dir": "D:/Github Codes and Projects/Projects/AutoUI",
+            "sub_dir": "",
+            "dependencies": [
+                "*.py",
+                "*.py",
+                "streamlit.py"
+            ]
+        },
+        "Data/TestCodes/FunctionChooser.py": {
+            "name": "FunctionChooser",
+            "type": "local",
+            "link": "https://github.com/KausikN/AutoUI/blob/master/Data/TestCodes/FunctionChooser.py",
+            "parent_dir": "D:/Github Codes and Projects/Projects/AutoUI",
+            "sub_dir": "Data/TestCodes",
+            "dependencies": [
+                "numpy.py"
+            ]
+        },
+        "Data/TestCodes/ImageOps.py": {
+            "name": "ImageOps",
+            "type": "local",
+            "link": "https://github.com/KausikN/AutoUI/blob/master/Data/TestCodes/ImageOps.py",
+            "parent_dir": "D:/Github Codes and Projects/Projects/AutoUI",
+            "sub_dir": "Data/TestCodes",
+            "dependencies": [
+                "cv2.py",
+                "matplotlib/pyplot.py",
+                "numpy.py",
+                "os.py"
+            ]
+        },
+        "Data/TestCodes/ListCode.py": {
+            "name": "ListCode",
+            "type": "local",
+            "link": "https://github.com/KausikN/AutoUI/blob/master/Data/TestCodes/ListCode.py",
+            "parent_dir": "D:/Github Codes and Projects/Projects/AutoUI",
+            "sub_dir": "Data/TestCodes",
+            "dependencies": []
+        },
+        "Data/TestCodes/Test.py": {
+            "name": "Test",
+            "type": "local",
+            "link": "https://github.com/KausikN/AutoUI/blob/master/Data/TestCodes/Test.py",
+            "parent_dir": "D:/Github Codes and Projects/Projects/AutoUI",
+            "sub_dir": "Data/TestCodes",
+            "dependencies": [
+                "numpy.py"
+            ]
+        },
+        "Data/TestCodes/Test_RE.py": {
+            "name": "Test_RE",
+            "type": "local",
+            "link": "https://github.com/KausikN/AutoUI/blob/master/Data/TestCodes/Test_RE.py",
+            "parent_dir": "D:/Github Codes and Projects/Projects/AutoUI",
+            "sub_dir": "Data/TestCodes",
+            "dependencies": [
+                "numpy.py"
+            ]
+        },
+        "Data/TestCodes/rtocsv.py": {
+            "name": "rtocsv",
+            "type": "local",
+            "link": "https://github.com/KausikN/AutoUI/blob/master/Data/TestCodes/rtocsv.py",
+            "parent_dir": "D:/Github Codes and Projects/Projects/AutoUI",
+            "sub_dir": "Data/TestCodes",
+            "dependencies": [
+                "pandas.py",
+                "pyreadr.py"
+            ]
+        },
+        "Image.py": {
+            "name": "Image",
+            "type": "missing",
+            "link": "",
+            "parent_dir": "",
+            "sub_dir": "",
+            "dependencies": []
+        },
+        "ImageTk.py": {
+            "name": "ImageTk",
+            "type": "missing",
+            "link": "",
+            "parent_dir": "",
+            "sub_dir": "",
+            "dependencies": []
+        },
+        "Library/InputLibrary/InputLibrary.py": {
+            "name": "InputLibrary",
+            "type": "local",
+            "link": "https://github.com/KausikN/AutoUI/blob/master/Library/InputLibrary/InputLibrary.py",
+            "parent_dir": "D:/Github Codes and Projects/Projects/AutoUI",
+            "sub_dir": "Library/InputLibrary",
+            "dependencies": [
+                "streamlit.py"
+            ]
+        },
+        "Library/OutputLibrary/OutputLibrary.py": {
+            "name": "OutputLibrary",
+            "type": "local",
+            "link": "https://github.com/KausikN/AutoUI/blob/master/Library/OutputLibrary/OutputLibrary.py",
+            "parent_dir": "D:/Github Codes and Projects/Projects/AutoUI",
+            "sub_dir": "Library/OutputLibrary",
+            "dependencies": [
+                "json.py"
+            ]
+        },
+        "StringIO.py": {
+            "name": "StringIO",
+            "type": "missing",
+            "link": "",
+            "parent_dir": "",
+            "sub_dir": "",
+            "dependencies": []
+        },
+        "TKinterPythonUI/Py2UI.py": {
+            "name": "Py2UI",
+            "type": "local",
+            "link": "https://github.com/KausikN/AutoUI/blob/master/TKinterPythonUI/Py2UI.py",
+            "parent_dir": "D:/Github Codes and Projects/Projects/AutoUI",
+            "sub_dir": "TKinterPythonUI",
+            "dependencies": [
+                "TKinterPythonUI/PythonCodeTokenizer.py",
+                "TKinterPythonUI/UIGen_TKinter.py",
+                "functools.py",
+                "json.py",
+                "os.py",
+                "pickle.py"
+            ]
+        },
+        "TKinterPythonUI/PythonCodeTokenizer.py": {
+            "name": "PythonCodeTokenizer",
+            "type": "local",
+            "link": "https://github.com/KausikN/AutoUI/blob/master/TKinterPythonUI/PythonCodeTokenizer.py",
+            "parent_dir": "D:/Github Codes and Projects/Projects/AutoUI",
+            "sub_dir": "TKinterPythonUI",
+            "dependencies": [
+                "json.py",
+                "re.py"
+            ]
+        },
+        "TKinterPythonUI/UIGen_TKinter.py": {
+            "name": "UIGen_TKinter",
+            "type": "local",
+            "link": "https://github.com/KausikN/AutoUI/blob/master/TKinterPythonUI/UIGen_TKinter.py",
+            "parent_dir": "D:/Github Codes and Projects/Projects/AutoUI",
+            "sub_dir": "TKinterPythonUI",
+            "dependencies": [
+                "*.py",
+                "Image.py",
+                "ImageTk.py",
+                "TKinterPythonUI/PythonCodeTokenizer.py",
+                "TKinterPythonUI/Utils.py",
+                "filedialog.py",
+                "json.py",
+                "os.py",
+                "partial.py",
+                "tkinter.py"
+            ]
+        },
+        "TKinterPythonUI/Utils.py": {
+            "name": "Utils",
+            "type": "local",
+            "link": "https://github.com/KausikN/AutoUI/blob/master/TKinterPythonUI/Utils.py",
+            "parent_dir": "D:/Github Codes and Projects/Projects/AutoUI",
+            "sub_dir": "TKinterPythonUI",
+            "dependencies": [
+                "StringIO.py",
+                "sys.py",
+                "tkinter.py",
+                "ttk.py"
+            ]
+        },
+        "app.py": {
+            "name": "app",
+            "type": "local",
+            "link": "https://github.com/KausikN/AutoUI/blob/master/app.py",
+            "parent_dir": "D:/Github Codes and Projects/Projects/AutoUI",
+            "sub_dir": "",
+            "dependencies": [
+                "AutoUI.py",
+                "json.py",
+                "os.py",
+                "streamlit.py"
+            ]
+        },
+        "cv2.py": {
+            "name": "cv2",
+            "type": "inbuilt",
+            "link": "",
+            "parent_dir": "D:/Github Codes and Projects/Projects/AutoUI",
+            "sub_dir": "",
+            "dependencies": []
+        },
+        "filedialog.py": {
+            "name": "filedialog",
+            "type": "missing",
+            "link": "",
+            "parent_dir": "",
+            "sub_dir": "",
+            "dependencies": []
+        },
+        "functools.py": {
+            "name": "functools",
+            "type": "inbuilt",
+            "link": "",
+            "parent_dir": "D:/Github Codes and Projects/Projects/AutoUI",
+            "sub_dir": "",
+            "dependencies": []
+        },
+        "json.py": {
+            "name": "json",
+            "type": "inbuilt",
+            "link": "",
+            "parent_dir": "D:/Github Codes and Projects/Projects/AutoUI",
+            "sub_dir": "",
+            "dependencies": []
+        },
+        "matplotlib/pyplot.py": {
+            "name": "pyplot",
+            "type": "inbuilt",
+            "link": "",
+            "parent_dir": "D:/Github Codes and Projects/Projects/AutoUI",
+            "sub_dir": "matplotlib",
+            "dependencies": []
+        },
+        "numpy.py": {
+            "name": "numpy",
+            "type": "inbuilt",
+            "link": "",
+            "parent_dir": "D:/Github Codes and Projects/Projects/AutoUI",
+            "sub_dir": "",
+            "dependencies": []
+        },
+        "os.py": {
+            "name": "os",
+            "type": "inbuilt",
+            "link": "",
+            "parent_dir": "D:/Github Codes and Projects/Projects/AutoUI",
+            "sub_dir": "",
+            "dependencies": []
+        },
+        "pandas.py": {
+            "name": "pandas",
+            "type": "inbuilt",
+            "link": "",
+            "parent_dir": "D:/Github Codes and Projects/Projects/AutoUI",
+            "sub_dir": "",
+            "dependencies": []
+        },
+        "partial.py": {
+            "name": "partial",
+            "type": "missing",
+            "link": "",
+            "parent_dir": "",
+            "sub_dir": "",
+            "dependencies": []
+        },
+        "pickle.py": {
+            "name": "pickle",
+            "type": "inbuilt",
+            "link": "",
+            "parent_dir": "D:/Github Codes and Projects/Projects/AutoUI",
+            "sub_dir": "",
+            "dependencies": []
+        },
+        "pyreadr.py": {
+            "name": "pyreadr",
+            "type": "missing",
+            "link": "",
+            "parent_dir": "",
+            "sub_dir": "",
+            "dependencies": []
+        },
+        "re.py": {
+            "name": "re",
+            "type": "inbuilt",
+            "link": "",
+            "parent_dir": "D:/Github Codes and Projects/Projects/AutoUI",
+            "sub_dir": "",
+            "dependencies": []
+        },
+        "streamlit.py": {
+            "name": "streamlit",
+            "type": "inbuilt",
+            "link": "",
+            "parent_dir": "D:/Github Codes and Projects/Projects/AutoUI",
+            "sub_dir": "",
+            "dependencies": []
+        },
+        "sys.py": {
+            "name": "sys",
+            "type": "inbuilt",
+            "link": "",
+            "parent_dir": "D:/Github Codes and Projects/Projects/AutoUI",
+            "sub_dir": "",
+            "dependencies": []
+        },
+        "tkinter.py": {
+            "name": "tkinter",
+            "type": "inbuilt",
+            "link": "",
+            "parent_dir": "D:/Github Codes and Projects/Projects/AutoUI",
+            "sub_dir": "",
+            "dependencies": []
+        },
+        "ttk.py": {
+            "name": "ttk",
+            "type": "missing",
+            "link": "",
+            "parent_dir": "",
+            "sub_dir": "",
+            "dependencies": []
+        }
+    }
+}

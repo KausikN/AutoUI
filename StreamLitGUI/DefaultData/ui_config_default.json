@@ -1,0 +1,74 @@
+{
+    "input_fields": {
+        "test_string": {
+            "input": {
+                "type": "text_input",
+                "params": {
+                    "label": "Enter some text",
+                    "value": "Default Text"
+                }
+            },
+            "output": {
+                "transforms": [
+                    {
+                        "name": "to_string",
+                        "params": {}
+                    }
+                ]
+            }
+        },
+        "test_number_slider": {
+            "input": {
+                "type": "slider",
+                "params": {
+                    "label": "Select a number",
+                    "min_value": 0,
+                    "max_value": 100,
+                    "value": 50,
+                    "step": 1
+                }
+            },
+            "output": {
+                "transforms": [
+                    {
+                        "name": "to_int",
+                        "params": {}
+                    }
+                ]
+            }
+        }
+    },
+    "derived_fields": {
+        "test_derived_divide_by_2": {
+            "transforms": [
+                {
+                    "name": "to_float",
+                    "input_fields_params_map": {
+                        "test_number_slider": "input"
+                    },
+                    "params": {},
+                    "output_key": "temp_float"
+                },
+                {
+                    "name": "divide_by",
+                    "input_fields_params_map": {
+                        "temp_float": "input"
+                    },
+                    "params": {
+                        "divisor": 3
+                    },
+                    "output_key": "temp_float_divided"
+                }
+            ]
+        }
+    },
+    "output_schema": {
+        "test_out_1": {
+            "test_string": "Test Default Text"
+        },
+        "test_out_2": {
+            "test_number_slider": 0,
+            "test_derived_divide_by_2": 0.0
+        }
+    }
+}

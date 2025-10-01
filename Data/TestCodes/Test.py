@@ -24,7 +24,7 @@ def POWER(a, b):
     return a**b
 #FEND
 
-# Driver Code
+# Run Code
 # Params
 IntVal = -10
 BoolVal = False

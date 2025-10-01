@@ -39,7 +39,7 @@ def POWER(a, b):
     return float(a) ** float(b)
 #FEND
 
-# Driver Code
+# Run Code
 # Params
 A = 2.1
 B = 2.1

@@ -79,7 +79,7 @@ def LoadCodeDataFromJSON(json_path):
     codeData = Code()
     codeData.code_path = codeDataJSON["code_path"]
     codeData.code_lines = ReadPythonCode(codeData.code_path)
-    # Assign Script Desc, Imports, Driver Code
+    # Assign Script Desc, Imports, Run Code
     codeData.script_desc = codeDataJSON["script_desc"]
     codeData.imports = codeDataJSON["imports"]
     # Assign Classes
@@ -97,7 +97,7 @@ def LoadCodeDataFromJSON(json_path):
     for sd in codeDataJSON["script_parameters"]:
         s = ScriptParameter(sd["name"], sd["value"])
         codeData.script_parameters.append(s)
-    # Assign Driver Code
+    # Assign Run Code
     codeData.driver_code = codeDataJSON["driver_code"]
 
     return codeData, WindowTitle
@@ -113,7 +113,7 @@ def WriteCodeDataToJSON(codeData, json_path, WindowTitle="Generated UI"):
 
     # Assign Basic Data
     codeDataJSON["code_path"] = codeData.code_path
-    # Assign Script Desc, Imports, Driver Code
+    # Assign Script Desc, Imports, Run Code
     codeDataJSON["script_desc"] = codeData.script_desc
     codeDataJSON["imports"] = codeData.imports
     # Assign Classes
@@ -131,7 +131,7 @@ def WriteCodeDataToJSON(codeData, json_path, WindowTitle="Generated UI"):
     for sd in codeDataJSON["script_parameters"]:
         s = {"name": sd.name, "value": sd.valueText}
         codeDataJSON["script_parameters"].append(s)
-    # Assign Driver Code
+    # Assign Run Code
     codeDataJSON["driver_code"] = codeData.driver_code
 
     json.dump(codeDataJSON, open(json_path, "wb"))
@@ -346,7 +346,7 @@ class ScriptParameter:
 # 2. Code must be separated in 3 parts:
 #       -   Imports after line # Imports
 #       -   Functions after line # Main Functions
-#       -   Driver Code after line # Driver Code
+#       -   Run Code after line # Run Code
 def PythonCode_Tokenize(code_lines, verbose=False):
     '''
     Python Code - Tokenizes the given Python Code Lines into its parts
@@ -395,10 +395,10 @@ def PythonCode_Tokenize(code_lines, verbose=False):
             print(sp.name, "\n", sp.value, "\n", sp.type)
         # print("Code after ScriptParameters:\n", code_lines)
     
-    # Get Driver Code
+    # Get Run Code
     DriverCode = code_lines
     if verbose:
-        print("Driver Code:\n")
+        print("Run Code:\n")
         for c in DriverCode:
             print(c)
 
@@ -605,19 +605,19 @@ def ReconstructCodeText(code_data):
     code_text.append("")
 
     # Reconstruct Script Parameters
-    code_text.append("# Driver Code")
+    code_text.append("# Run Code")
     code_text.append("# Params")
     for sp in code_data.script_parameters:
         code_text.append(sp.getCodeText())
 
     code_text.append("")
 
-    # Reconstruct Driver Code
+    # Reconstruct Run Code
     code_text.extend(code_data.driver_code)
 
     return "\n".join(code_text)
 
-# # Driver Code
+# # Run Code
 # # Params
 # mainPath = "Data/TestCodes/"
 # fileName = "Test.py"

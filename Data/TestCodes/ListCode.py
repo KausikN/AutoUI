@@ -6,7 +6,7 @@ Function Chooser Program
 
 # Main Functions
 
-# Driver Code
+# Run Code
 # Params
 TestList = [1, 2, 3] #SIZE 0,5
 # Params

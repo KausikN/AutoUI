@@ -139,7 +139,7 @@ def GenerateWindowData(ScriptParameters, RunScriptFunc, OtherFuncs):
     
     return WindowData
 
-# Driver Code
+# Run Code
 def Code2UI(codePath, EffectsCodeProcessFuncs={}):
     '''
     Generates UI from a Python Code File

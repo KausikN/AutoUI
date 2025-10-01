@@ -1,0 +1,10 @@
+{
+    "PROJECT_NAME": "AutoUI",
+    "PROJECT_LINK": "https://github.com/KausikN/AutoUI",
+
+    "PROJECT_DESC": "Automatic UI Generator for Various Languages and in Various UI Libraries",
+
+    "PROJECT_README": "README.md",
+
+    "PROJECT_MODES": ["Auto JSON Output UI"]
+}

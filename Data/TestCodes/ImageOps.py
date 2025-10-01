@@ -38,7 +38,7 @@ def ImageThreshold(a, threshold, replacementVal=[0, 255]):
     return A
 #FEND
 
-# Driver Code
+# Run Code
 # Params
 Image_1_Path = '' #TYPE: FILE Image
 Image_2_Path = '' #TYPE: FILE Image
