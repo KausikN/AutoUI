@@ -7,8 +7,8 @@
    
    Parameters in Script
    
-   ![Params](https://github.com/KausikN/AutoUI/blob/master/Images/Params.JPG)
+   ![Params](Data/Images/Params.JPG)
    
    Generated UI
    
-   ![UI](https://github.com/KausikN/AutoUI/blob/master/Images/UI.JPG)
+   ![UI](Data/Images/UI.JPG)

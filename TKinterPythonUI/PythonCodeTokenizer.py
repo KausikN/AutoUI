@@ -7,26 +7,38 @@ import re
 import json
 
 # Load Config
-config = json.load(open('UIUtils/TokenConfig.json', 'rb'))
+config = json.load(open("TKinterPythonUI/TokenConfig.json", "rb"))
 
 # Main Functions
 # Basic Functions
 def ReadPythonCode(path):
-    return open(path, 'r').readlines()
+    '''
+    Reads Python Code from a given Path
+    '''
+    return open(path, "r").readlines()
 
 def isStringData(val, StringDetectors):
+    '''
+    Checks if the given value is a String based on the given String Detectors
+    '''
     for sd in StringDetectors:
         if val.startswith(sd) and val.endswith(sd):
             return True
     return False
 
 def StringDataDetector(val, StringDetectors):
+    '''
+    Gets the String Detector used in the given value based on the given String Detectors
+    '''
     for sd in StringDetectors:
         if val.startswith(sd) and val.endswith(sd):
             return sd
     return None
 
 def isData_DetectorBased(val, Detectors):
+    '''
+    Checks if the given value is a Data based on the given Detectors
+    '''
     for d in Detectors:
         if d[0] in val and d[1] in val:
             if val.find(d[0]) < (len(val) - val[::-1].find(d[1])):
@@ -34,6 +46,9 @@ def isData_DetectorBased(val, Detectors):
     return False
 
 def FindDataDetector(val, Detectors):
+    '''
+    Gets the Data Detector used in the given value based on the given Detectors
+    '''
     for d in Detectors:
         if d[0] in val and d[1] in val:
             if val.find(d[0]) < (len(val) - val[::-1].find(d[1])):
@@ -41,6 +56,9 @@ def FindDataDetector(val, Detectors):
     return None
 
 def CheckType(value, TypeFunc):
+    '''
+    Checks if the given value can be converted to the given Type Function
+    '''
     try: 
         TypeFunc(value)
         return True
@@ -49,72 +67,81 @@ def CheckType(value, TypeFunc):
 
 # JSON Code Functions
 def LoadCodeDataFromJSON(json_path):
-    codeDataJSON = json.load(open(json_path, 'rb'))
+    '''
+    Loads Code Data from a given JSON Path
+    '''
+    codeDataJSON = json.load(open(json_path, "rb"))
 
     # Assign Window Title
-    WindowTitle = codeDataJSON['WindowTitle']
+    WindowTitle = codeDataJSON["WindowTitle"]
 
     # Assign Basic Data
     codeData = Code()
-    codeData.code_path = codeDataJSON['code_path']
+    codeData.code_path = codeDataJSON["code_path"]
     codeData.code_lines = ReadPythonCode(codeData.code_path)
     # Assign Script Desc, Imports, Driver Code
-    codeData.script_desc = codeDataJSON['script_desc']
-    codeData.imports = codeDataJSON['imports']
+    codeData.script_desc = codeDataJSON["script_desc"]
+    codeData.imports = codeDataJSON["imports"]
     # Assign Classes
     codeData.classes = []
-    for cd in codeDataJSON['classes']:
-        c = Class(cd['name'], cd['code'])
+    for cd in codeDataJSON["classes"]:
+        c = Class(cd["name"], cd["code"])
         codeData.classes.append(c)
     # Assign Functions
     codeData.functions = []
-    for fd in codeDataJSON['functions']:
-        f = Function(fd['name'], fd['desc'], fd['parameters'], fd['code'])
+    for fd in codeDataJSON["functions"]:
+        f = Function(fd["name"], fd["desc"], fd["parameters"], fd["code"])
         codeData.functions.append(f)
     # Assign Script Parameters
     codeData.script_parameters = []
-    for sd in codeDataJSON['script_parameters']:
-        s = ScriptParameter(sd['name'], sd['value'])
+    for sd in codeDataJSON["script_parameters"]:
+        s = ScriptParameter(sd["name"], sd["value"])
         codeData.script_parameters.append(s)
     # Assign Driver Code
-    codeData.driver_code = codeDataJSON['driver_code']
+    codeData.driver_code = codeDataJSON["driver_code"]
 
     return codeData, WindowTitle
 
-def WriteCodeDataToJSON(codeData, json_path, WindowTitle='Generated UI'):
+def WriteCodeDataToJSON(codeData, json_path, WindowTitle="Generated UI"):
+    '''
+    Writes Code Data to a given JSON Path
+    '''
     codeDataJSON = {}
 
     # Assign Window Title
-    codeDataJSON['WindowTitle'] = WindowTitle
+    codeDataJSON["WindowTitle"] = WindowTitle
 
     # Assign Basic Data
-    codeDataJSON['code_path'] = codeData.code_path
+    codeDataJSON["code_path"] = codeData.code_path
     # Assign Script Desc, Imports, Driver Code
-    codeDataJSON['script_desc'] = codeData.script_desc
-    codeDataJSON['imports'] = codeData.imports
+    codeDataJSON["script_desc"] = codeData.script_desc
+    codeDataJSON["imports"] = codeData.imports
     # Assign Classes
-    codeDataJSON['classes'] = []
+    codeDataJSON["classes"] = []
     for cd in codeData.classes:
-        c = {'name': cd.name, 'code': c.code}
-        codeDataJSON['classes'].append(c)
+        c = {"name": cd.name, "code": c.code}
+        codeDataJSON["classes"].append(c)
     # Assign Functions
-    codeDataJSON['functions'] = []
+    codeDataJSON["functions"] = []
     for fd in codeData.functions:
-        f = {'name': fd.name, 'desc': fd.desc, 'parameters': fd.parameters, 'code': fd.code}
-        codeDataJSON['functions'].append(f)
+        f = {"name": fd.name, "desc": fd.desc, "parameters": fd.parameters, "code": fd.code}
+        codeDataJSON["functions"].append(f)
     # Assign Script Parameters
-    codeDataJSON['script_parameters'] = []
-    for sd in codeDataJSON['script_parameters']:
-        s = {'name': sd.name, 'value': sd.valueText}
-        codeDataJSON['script_parameters'].append(s)
+    codeDataJSON["script_parameters"] = []
+    for sd in codeDataJSON["script_parameters"]:
+        s = {"name": sd.name, "value": sd.valueText}
+        codeDataJSON["script_parameters"].append(s)
     # Assign Driver Code
-    codeDataJSON['driver_code'] = codeData.driver_code
+    codeDataJSON["driver_code"] = codeData.driver_code
 
-    json.dump(codeDataJSON, open(json_path, 'wb'))
+    json.dump(codeDataJSON, open(json_path, "wb"))
 
 
 # Code Class
 class Code:
+    '''
+    Code Class to hold all the tokenized parts of the code
+    '''
     def __init__(self, path=None):
         if path is not None:
             self.code_path = path
@@ -122,7 +149,7 @@ class Code:
         else:
             self.code_path = None
             self.code_lines = None
-            self.script_desc, self.imports, self.classes, self.functions, self.script_parameters, self.driver_code = '', [], [], [], [], ''
+            self.script_desc, self.imports, self.classes, self.functions, self.script_parameters, self.driver_code = "", [], [], [], [], ""
 
     def tokenize(self):
         # Read the code lines
@@ -132,6 +159,9 @@ class Code:
 
 # Function Class
 class Function:
+    '''
+    Function Class to hold all the tokenized parts of a function
+    '''
     def __init__(self, name, desc, parameters, code):
         self.name = name
         self.desc = desc
@@ -140,18 +170,24 @@ class Function:
 
 # Classes Class
 class Class:
+    '''
+    Class Class to hold all the tokenized parts of a class
+    '''
     def __init__(self, name, code):
         self.name = name
         self.code = code
 
 # Script Parameters
 class ScriptParameter:
+    '''
+    Script Parameter Class to hold all the tokenized parts of a script parameter
+    '''
     def __init__(self, name, value):
         self.name = name
         self.valueText = value
         self.value = value
-        self.value_prefix = ''
-        self.value_suffix = ''
+        self.value_prefix = ""
+        self.value_suffix = ""
         self.type = None
         self.ui_mode = None
         self.otherData = {}
@@ -161,13 +197,13 @@ class ScriptParameter:
             return self.name + " = " + "None"
         elif type(self.value) == list:
             data = []
-            for i in range(len(self.otherData['ListData'])):
+            for i in range(len(self.otherData["ListData"])):
                 ref_index = i
                 if i >= len(self.value):
                     ref_index = 0
-                self.value[ref_index].value = self.otherData['ListData'][i]
+                self.value[ref_index].value = self.otherData["ListData"][i]
                 data.append(self.value[ref_index].getValueText())
-            return self.name + " = " + self.value_prefix + ','.join(data) + self.value_suffix
+            return self.name + " = " + self.value_prefix + ",".join(data) + self.value_suffix
         else:
             return self.name + " = " + self.value_prefix + str(self.value) + self.value_suffix
     def getValueText(self):
@@ -175,45 +211,45 @@ class ScriptParameter:
             return "None"
         elif type(self.value) == list:
             data = []
-            for i in range(len(self.otherData['ListData'])):
+            for i in range(len(self.otherData["ListData"])):
                 ref_index = i
                 if i >= len(self.value):
                     ref_index = 0
-                self.value[ref_index].value = self.otherData['ListData'][i]
+                self.value[ref_index].value = self.otherData["ListData"][i]
                 data.append(self.value[ref_index].getCodeText())
-            return self.value_prefix + ','.join(data) + self.value_suffix
+            return self.value_prefix + ",".join(data) + self.value_suffix
         else:
             return self.value_prefix + str(self.value) + self.value_suffix
     def findType(self, value):
         # No Type - Put as it is
         NoType = False
-        self.otherData['multiple_lines_string'] = False
+        self.otherData["multiple_lines_string"] = False
         # String MultiLine Preprocess
-        if value.strip().endswith(config['String_MultiLine_Declare']):
-            self.otherData['multiple_lines_string'] = True
-            value = value.strip().rstrip(config['String_MultiLine_Declare'])
+        if value.strip().endswith(config["String_MultiLine_Declare"]):
+            self.otherData["multiple_lines_string"] = True
+            value = value.strip().rstrip(config["String_MultiLine_Declare"])
 
-        if config['NoType_Declare'] in value:
-            self.value = value.replace(config['NoType_Declare'], '').strip()
+        if config["NoType_Declare"] in value:
+            self.value = value.replace(config["NoType_Declare"], "").strip()
             self.type = str
             NoType = True
             return
         # Specified Type
         SpecifiedType = True
-        if config['SpecificType_Declare'] in value:
-            ValueData = re.findall('^(.*)' + config['SpecificType_Declare'], value)[-1].strip()
-            SpecTypeData = re.findall(config['SpecificType_Declare'] + '(.*)', value)[-1].strip().split(' ')
+        if config["SpecificType_Declare"] in value:
+            ValueData = re.findall("^(.*)" + config["SpecificType_Declare"], value)[-1].strip()
+            SpecTypeData = re.findall(config["SpecificType_Declare"] + "(.*)", value)[-1].strip().split(" ")
             # Dropdown Type
-            if SpecTypeData[0] == config['SpecificTypes']['Dropdown']:
-                self.ui_mode = config['SpecificTypes']['Dropdown']
-                choices = ' '.join(SpecTypeData[1:]).split(',')
-                sp_temp = ScriptParameter('temp', choices[0])
+            if SpecTypeData[0] == config["SpecificTypes"]["Dropdown"]:
+                self.ui_mode = config["SpecificTypes"]["Dropdown"]
+                choices = " ".join(SpecTypeData[1:]).split(",")
+                sp_temp = ScriptParameter("temp", choices[0])
                 choices[0] = sp_temp.value
                 self.type = sp_temp.type
                 self.value = list(map(self.type, choices))
             # File Select Type
-            elif SpecTypeData[0] == config['SpecificTypes']['FileSelect']:
-                self.ui_mode = config['SpecificTypes']['FileSelect']
+            elif SpecTypeData[0] == config["SpecificTypes"]["FileSelect"]:
+                self.ui_mode = config["SpecificTypes"]["FileSelect"]
                 self.value = ValueData[1:-1]
                 self.type = type(self.value)
                 self.value_prefix = ValueData[0]
@@ -225,11 +261,11 @@ class ScriptParameter:
                     if (SpecTypeData[1].strip() + "_Extensions") in config.keys():
                         exts = config[SpecTypeData[1].strip() + "_Extensions"]
                     else:
-                        exts = SpecTypeData[1].split(',')
-                    self.otherData['ext'] = exts
+                        exts = SpecTypeData[1].split(",")
+                    self.otherData["ext"] = exts
             # Dir Select Type
-            elif SpecTypeData[0] == config['SpecificTypes']['DirectorySelect']:
-                self.ui_mode = config['SpecificTypes']['DirectorySelect']
+            elif SpecTypeData[0] == config["SpecificTypes"]["DirectorySelect"]:
+                self.ui_mode = config["SpecificTypes"]["DirectorySelect"]
                 self.value = ValueData[1:-1]
                 self.type = type(self.value)
                 self.value_prefix = ValueData[0]
@@ -241,49 +277,49 @@ class ScriptParameter:
 
         if not SpecifiedType:
             # None Type
-            if value == 'None':
+            if value == "None":
                 self.value = None
                 self.type = type(None)
             # Bool Type
-            elif value in ['True', 'False']:
-                self.value = value == 'True'
+            elif value in ["True", "False"]:
+                self.value = value == "True"
                 self.type = type(self.value)
             # String Type
-            elif isStringData(value, config['String_Detect']):
-                detectedDetector = StringDataDetector(value, config['String_Detect'])
+            elif isStringData(value, config["String_Detect"]):
+                detectedDetector = StringDataDetector(value, config["String_Detect"])
                 self.value = value[len(detectedDetector):-len(detectedDetector)]
                 self.type = type(self.value)
                 self.value_prefix = value[0]
                 self.value_suffix = value[-1]
                 
             # Array Type
-            elif isData_DetectorBased(value, config['Array_Detect']):
-                self.otherData['sizeRange'] = [0, 5]
+            elif isData_DetectorBased(value, config["Array_Detect"]):
+                self.otherData["sizeRange"] = [0, 5]
 
                 SizeCheck = False
-                for ad in config['Array_Detect']:
-                    if config['ArrayType_SizeRestrict_Declare'] in value.split(ad[1])[-1] and ad[1] in value:
+                for ad in config["Array_Detect"]:
+                    if config["ArrayType_SizeRestrict_Declare"] in value.split(ad[1])[-1] and ad[1] in value:
                         SizeCheck = True
                         print(value)
-                        print(re.findall(config['ArrayType_SizeRestrict_Declare'] + '(.*)', value.split(ad[1])[-1])[-1])
-                        sizeRange = re.findall(config['ArrayType_SizeRestrict_Declare'] + '(.*)', value.split(ad[1])[-1])[-1].strip().split('$')
-                        self.otherData['sizeRange'] = [int(sizeRange[0].strip()), int(sizeRange[1].strip())]
-                        value = re.findall('^(.*)' + config['ArrayType_SizeRestrict_Declare'], value)[0].strip()
+                        print(re.findall(config["ArrayType_SizeRestrict_Declare"] + "(.*)", value.split(ad[1])[-1])[-1])
+                        sizeRange = re.findall(config["ArrayType_SizeRestrict_Declare"] + "(.*)", value.split(ad[1])[-1])[-1].strip().split("$")
+                        self.otherData["sizeRange"] = [int(sizeRange[0].strip()), int(sizeRange[1].strip())]
+                        value = re.findall("^(.*)" + config["ArrayType_SizeRestrict_Declare"], value)[0].strip()
                         break
 
-                detectedDetector = FindDataDetector(value, config['Array_Detect'])
+                detectedDetector = FindDataDetector(value, config["Array_Detect"])
                 self.value = value[len(detectedDetector[0]):-len(detectedDetector[1])]
-                if self.value == '':
+                if self.value == "":
                     self.value = []
                 else:
-                    datalist = self.value.split(',')
+                    datalist = self.value.split(",")
                     self.value = []
                     for i in range(len(datalist)):
                         self.value.append(ScriptParameter(str(i), datalist[i].strip()))
-                self.type = config['ArrayType_Declare']
+                self.type = config["ArrayType_Declare"]
                 self.value_prefix = value[0]
                 self.value_suffix = value[-1]
-                self.ui_mode = config['ArrayType_Declare']
+                self.ui_mode = config["ArrayType_Declare"]
             # Other Types
             else:
                 Types = [int, float]
@@ -312,11 +348,14 @@ class ScriptParameter:
 #       -   Functions after line # Main Functions
 #       -   Driver Code after line # Driver Code
 def PythonCode_Tokenize(code_lines, verbose=False):
+    '''
+    Python Code - Tokenizes the given Python Code Lines into its parts
+    '''
     # Preprocess
     # Remove all empty lines
     code_lines_preprocessed = []
     for l in code_lines:
-        if not l.strip() == '':
+        if not l.strip() == "":
             code_lines_preprocessed.append(l)
     code_lines = code_lines_preprocessed
 
@@ -366,10 +405,13 @@ def PythonCode_Tokenize(code_lines, verbose=False):
     return ScriptDesc, Imports, Classes, Functions, ScriptParameters, DriverCode
             
 def GetScriptDesc(code_lines):
+    '''
+    Gets the Script Description from the given Code Lines
+    '''
     remaining_code_lines = []
 
-    ScriptDesc = ''
-    DescSeparators = config['Desc_Detect']
+    ScriptDesc = ""
+    DescSeparators = config["Desc_Detect"]
     
     DescFound = False
     SepFound = False
@@ -411,24 +453,27 @@ def GetScriptDesc(code_lines):
                 # print("Added3:", l)
 
     if not DescFound:
-        ScriptDesc = ''
+        ScriptDesc = ""
         remaining_code_lines = code_lines
 
-    ScriptDesc = ScriptDesc.strip('\n')
+    ScriptDesc = ScriptDesc.strip("\n")
 
     return ScriptDesc, remaining_code_lines
 
 def GetImports(code_lines):
+    '''
+    Gets the Imports from the given Code Lines
+    '''
     remaining_code_lines = []
 
     Imports = []
-    ImportDetectors = config['Import_Detect']
+    ImportDetectors = config["Import_Detect"]
 
     lastImport_Index = -1
     for i in range(len(code_lines)):
         for imd in ImportDetectors:
             if re.search(imd, code_lines[i]) is not None:
-                Imports.append(code_lines[i].strip('\n'))
+                Imports.append(code_lines[i].strip("\n"))
                 lastImport_Index = i
                 break
 
@@ -440,14 +485,17 @@ def GetImports(code_lines):
     return Imports, remaining_code_lines
 
 def GetClassesFunctions(code_lines):
+    '''
+    Gets the Classes and Functions from the given Code Lines
+    '''
     remaining_code_lines = []
 
     Functions = []
     Classes = []
-    ClassStart = config['Class_Start']
-    ClassEnd = config['Class_End']
-    FunctionStart = config['Function_Start']
-    FunctionEnd = config['Function_End']
+    ClassStart = config["Class_Start"]
+    ClassEnd = config["Class_End"]
+    FunctionStart = config["Function_Start"]
+    FunctionEnd = config["Function_End"]
 
     FunctionStarted = False
     ClassStarted = False
@@ -463,10 +511,10 @@ def GetClassesFunctions(code_lines):
                     remaining_code_lines = code_lines[i+1:]
                 continue
             else:
-                curClass.code.append(code_lines[i].strip('\n'))
+                curClass.code.append(code_lines[i].strip("\n"))
         elif re.search(ClassStart, code_lines[i]) is not None:
             ClassStarted = True
-            name = re.findall(config['Class_Name_Detect'], code_lines[i])[0].strip('\n')
+            name = re.findall(config["Class_Name_Detect"], code_lines[i])[0].strip("\n")
             curClass = Class(name, [])
             continue
         if FunctionStarted:
@@ -478,12 +526,12 @@ def GetClassesFunctions(code_lines):
                     remaining_code_lines = code_lines[i+1:]
                 continue
             else:
-                curFunction.code.append(code_lines[i].strip('\n'))
+                curFunction.code.append(code_lines[i].strip("\n"))
         elif re.search(FunctionStart, code_lines[i]) is not None:
             FunctionStarted = True
-            name = re.findall(config['Function_Name_Detect'], code_lines[i])[0].strip('\n')
-            parameters = re.findall(config['Function_Parameters_Detect'], code_lines[i])[0].replace(' ', '').strip('\n').split(',')
-            curFunction = Function(name, '', parameters, [])
+            name = re.findall(config["Function_Name_Detect"], code_lines[i])[0].strip("\n")
+            parameters = re.findall(config["Function_Parameters_Detect"], code_lines[i])[0].replace(" ", "").strip("\n").split(",")
+            curFunction = Function(name, "", parameters, [])
             continue
 
     if len(Functions) == 0 and len(Classes) == 0:
@@ -492,11 +540,14 @@ def GetClassesFunctions(code_lines):
     return Functions, Classes, remaining_code_lines
 
 def GetScriptParameters(code_lines):
+    '''
+    Gets the Script Parameters from the given Code Lines
+    '''
     remaining_code_lines = []
 
     ScriptParameters = []
-    ParamsStart = config['ScriptParams_Start']
-    ParamsEnd = config['ScriptParams_End']
+    ParamsStart = config["ScriptParams_Start"]
+    ParamsEnd = config["ScriptParams_End"]
 
     ParamsStarted = False
     curParams = []
@@ -509,26 +560,29 @@ def GetScriptParameters(code_lines):
                 curParams = []
                 continue
             else:
-                name = re.findall(config['ScriptParams_Name_Detect'], code_lines[i])[0].strip().strip('\n')
-                value = re.findall(config['ScriptParams_Value_Detect'], code_lines[i])[0].strip().strip('\n')
+                name = re.findall(config["ScriptParams_Name_Detect"], code_lines[i])[0].strip().strip("\n")
+                value = re.findall(config["ScriptParams_Value_Detect"], code_lines[i])[0].strip().strip("\n")
                 param = ScriptParameter(name, value)
                 curParams.append(param)
         elif code_lines[i].strip().startswith(ParamsStart):
             ParamsStarted = True
             continue
         else:
-            remaining_code_lines.append(code_lines[i].strip('\n'))
+            remaining_code_lines.append(code_lines[i].strip("\n"))
 
     return ScriptParameters, remaining_code_lines
 
 # Reconstruction Functions
 def ReconstructCodeText(code_data):
+    '''
+    Reconstructs the Code Text from the given Code Data
+    '''
     code_text = []
 
     # Reconstruct Script Desc
-    code_text.append(config['Desc_Detect'][0])
+    code_text.append(config["Desc_Detect"][0])
     code_text.append(code_data.script_desc)
-    code_text.append(config['Desc_Detect'][0])
+    code_text.append(config["Desc_Detect"][0])
 
     code_text.append("")
 
@@ -545,7 +599,7 @@ def ReconstructCodeText(code_data):
         code_text.append("class " + c.name + ":")
         code_text.extend(c.code)
     for f in code_data.functions:
-        code_text.append("def " + f.name + "(" + ', '.join(f.parameters) + "):")
+        code_text.append("def " + f.name + "(" + ", ".join(f.parameters) + "):")
         code_text.extend(f.code)
 
     code_text.append("")
@@ -561,27 +615,25 @@ def ReconstructCodeText(code_data):
     # Reconstruct Driver Code
     code_text.extend(code_data.driver_code)
 
-    return '\n'.join(code_text)
+    return "\n".join(code_text)
 
-"""
-# Driver Code
-# Params
-mainPath = 'TestCodes/'
-fileName = 'Test.py'
+# # Driver Code
+# # Params
+# mainPath = "Data/TestCodes/"
+# fileName = "Test.py"
 
-ReconstructedCode_savePath = 'Test_RE.py'
+# ReconstructedCode_savePath = "Test_RE.py"
 
-# Parse Original Code
-PyCode = Code(mainPath + fileName)
+# # Parse Original Code
+# PyCode = Code(mainPath + fileName)
 
-# Change Data
-changeParamName = 'IntVal'
-replaceVal = 2
-for i in range(len(PyCode.script_parameters)):
-    if PyCode.script_parameters[i].name == changeParamName:
-        PyCode.script_parameters[i].value = replaceVal
+# # Change Data
+# changeParamName = "IntVal"
+# replaceVal = 2
+# for i in range(len(PyCode.script_parameters)):
+#     if PyCode.script_parameters[i].name == changeParamName:
+#         PyCode.script_parameters[i].value = replaceVal
 
-# Reconstruct Code
-code_RE = ReconstructCodeText(PyCode)
-open(mainPath + ReconstructedCode_savePath, 'w').write(code_RE)
-"""
+# # Reconstruct Code
+# code_RE = ReconstructCodeText(PyCode)
+# open(mainPath + ReconstructedCode_savePath, "w").write(code_RE)

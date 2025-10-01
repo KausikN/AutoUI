@@ -13,21 +13,24 @@ from PIL import ImageTk, Image
 from tkinter import filedialog
 from functools import partial
 
-from UIUtils import Utils
-from UIUtils import PythonCodeTokenizer as pct
+import Utils
+import PythonCodeTokenizer as pct
 
 # Load Config
-config = json.load(open('UIUtils/WindowDataConfig.json', 'rb'))
+config = json.load(open("TKinterPythonUI/WindowDataConfig.json", "rb"))
 root = None
 canvas = None
 
 # Main Functions
 def CreateWindow(CodeData, WindowData, WindowTitle):
+    '''
+    Creates a Tkinter Window based on the given Window Data
+    '''
     global root
     global canvas
 
     # Init Window
-    print('Creating Window...')
+    print("Creating Window...")
     TKWindow = Tk()
     TKWindow.title(WindowTitle)
     TKWindow.grid_rowconfigure(0, weight=1)
@@ -64,10 +67,10 @@ def CreateWindow(CodeData, WindowData, WindowTitle):
     ui_items_button = {}
     ui_items_output = {}
 
-    UI_ITEMS = {config['Input_UI']: ui_items_input, config['Output_UI']: ui_items_output, config['Additional_UI']: ui_items_additional}
+    UI_ITEMS = {config["Input_UI"]: ui_items_input, config["Output_UI"]: ui_items_output, config["Additional_UI"]: ui_items_additional}
 
     # Input UI
-    for field in WindowData[config['Input_UI']]:
+    for field in WindowData[config["Input_UI"]]:
         e, val, valType = GenerateInputUI(root, field, UI_ITEMS)
 
         # Record Data
@@ -77,10 +80,10 @@ def CreateWindow(CodeData, WindowData, WindowTitle):
             ui_items_input[field.type] = [(field.name, e, val, valType)]
 
     # Output UI
-    for field in WindowData[config['Output_UI']]:
+    for field in WindowData[config["Output_UI"]]:
         o = None
         val = None
-        if field.type == config['Output_Text']:
+        if field.type == config["Output_Text"]:
             val = StringVar(root)
             val.set(str(field.value))
             o = Label(root, textvariable=val)
@@ -99,10 +102,10 @@ def CreateWindow(CodeData, WindowData, WindowTitle):
             ui_items_output[field.type] = [(field.name, o, val, str)]
 
     # Title UI
-    for field in WindowData[config['Title_UI']]:
+    for field in WindowData[config["Title_UI"]]:
         val = None
         t = None
-        if field.type == config['Title_Label']:
+        if field.type == config["Title_Label"]:
             val = StringVar(root)
             val.set(str(field.value))
             t = Label(root, textvariable=val)
@@ -115,30 +118,30 @@ def CreateWindow(CodeData, WindowData, WindowTitle):
             ui_items_title[field.type] = [(field.name, t, val, None)]
     
     # Other UI
-    for field in WindowData[config['Additional_UI']]:
+    for field in WindowData[config["Additional_UI"]]:
         val = None
         a = None
         valType = None
 
-        if field.type == config['Additional_NoneCheck']:
+        if field.type == config["Additional_NoneCheck"]:
             val = BooleanVar(root)
             val.set(bool(field.value))
-            # UI_ITEMS = {config['Input_UI']: ui_items_input, config['Additional_UI']: ui_items_additional}
+            # UI_ITEMS = {config["Input_UI"]: ui_items_input, config["Additional_UI"]: ui_items_additional}
             a = Checkbutton(root, var=val, command=partial(field.command, UI_ITEMS, field.name))
             a.grid(row=field.location[0], column=field.location[1])
             valType = bool
 
-        elif field.type == config['Additional_DataShow']:
+        elif field.type == config["Additional_DataShow"]:
             val = StringVar(root)
             if field.value is None:
-                val.set('None')
+                val.set("None")
             else:
                 val.set(str(field.value))
-            a = Label(root, textvariable=val, anchor='w')
+            a = Label(root, textvariable=val, anchor="w")
             a.grid(row=field.location[0], column=field.location[1])
             valType = str
 
-        elif field.type == config['Additional_FileShow']:
+        elif field.type == config["Additional_FileShow"]:
             val = StringVar(root)
             val.set(" ")
             a = Label(root, textvariable=val)
@@ -152,10 +155,10 @@ def CreateWindow(CodeData, WindowData, WindowTitle):
             ui_items_additional[field.type] = [(field.name, a, val, valType)]
 
     # Buttons UI
-    for field in WindowData[config['Button_UI']]:
+    for field in WindowData[config["Button_UI"]]:
         b = None
-        if field.type == config['Button_Function']:
-            # UI_ITEMS = {config['Input_UI']: ui_items_input, config['Additional_UI']: ui_items_additional}
+        if field.type == config["Button_Function"]:
+            # UI_ITEMS = {config["Input_UI"]: ui_items_input, config["Additional_UI"]: ui_items_additional}
             b = Button(root, text=field.name, command=partial(field.value, UI_ITEMS, CodeData))
             b.grid(row=field.location[0], column=field.location[1])
 
@@ -174,21 +177,24 @@ def CreateWindow(CodeData, WindowData, WindowTitle):
     TKWindow.mainloop()
 
 def GenerateInputUI(root, field, UI_ITEMS):
+    '''
+    Generates the Input UI element based on the Field Data
+    '''
     val = None
     e = None
     valType = None
-    if field.type == config['Input_String']:
+    if field.type == config["Input_String"]:
         val = StringVar(root)
         val.set(str(field.value))
-        val.trace('w', partial(field.command, UI_ITEMS, field.name))
+        val.trace("w", partial(field.command, UI_ITEMS, field.name))
         e = Entry(root, textvariable=val)
         e.grid(row=field.location[0], column=field.location[1])
         valType = str
 
-    elif field.type == config['Input_StringMultiLine']:
+    elif field.type == config["Input_StringMultiLine"]:
         val = StringVar(root)
         val.set(str(field.value))
-        # val.trace('w', partial(field.command, UI_ITEMS, field.name))
+        # val.trace("w", partial(field.command, UI_ITEMS, field.name))
         val = None
 
         e = Text(root, height=10, width=100)
@@ -200,30 +206,30 @@ def GenerateInputUI(root, field, UI_ITEMS):
 
         valType = str
 
-    elif field.type == config['Input_Bool']:
+    elif field.type == config["Input_Bool"]:
         val = BooleanVar(root)
         val.set(bool(field.value))
         e = Checkbutton(root, var=val, command=partial(field.command, UI_ITEMS, field.name))
         e.grid(row=field.location[0], column=field.location[1])
         valType = bool
 
-    elif field.type == config['Input_Int']:
+    elif field.type == config["Input_Int"]:
         val = StringVar(root)
         val.set(str(field.value))
-        val.trace('w', partial(field.command, UI_ITEMS, field.name))
+        val.trace("w", partial(field.command, UI_ITEMS, field.name))
         e = Entry(root, textvariable=val)
         e.grid(row=field.location[0], column=field.location[1])
         valType = int
 
-    elif field.type == config['Input_Float']:
+    elif field.type == config["Input_Float"]:
         val = StringVar(root)
         val.set(str(field.value))
-        val.trace('w', partial(field.command, UI_ITEMS, field.name))
+        val.trace("w", partial(field.command, UI_ITEMS, field.name))
         e = Entry(root, textvariable=val)
         e.grid(row=field.location[0], column=field.location[1])
         valType = float
 
-    elif field.type == config['Input_DropdownList']:
+    elif field.type == config["Input_DropdownList"]:
         OptionList = list(field.value)
         val = StringVar(root)
         val.set(str(OptionList[0]))
@@ -231,28 +237,28 @@ def GenerateInputUI(root, field, UI_ITEMS):
         e.grid(row=field.location[0], column=field.location[1])
         valType = type(OptionList[0])
 
-    elif field.type == config['Input_FileSelect']:
+    elif field.type == config["Input_FileSelect"]:
         val = StringVar(root)
-        val.set('No File Selected')
-        val.trace('w', partial(field.command, UI_ITEMS, field.name))
+        val.set("No File Selected")
+        val.trace("w", partial(field.command, UI_ITEMS, field.name))
         e = Button(root, text="Select File", command=partial(field.value, val, field.otherData))
         e.grid(row=field.location[0], column=field.location[1])
         valType = str
 
-    elif field.type == config['Input_DirectorySelect']:
+    elif field.type == config["Input_DirectorySelect"]:
         val = StringVar(root)
-        val.set('No Dir Selected')
-        val.trace('w', partial(field.command, UI_ITEMS, field.name))
+        val.set("No Dir Selected")
+        val.trace("w", partial(field.command, UI_ITEMS, field.name))
         e = Button(root, text="Select Dir", command=partial(field.value, val, field.otherData))
         e.grid(row=field.location[0], column=field.location[1])
         valType = str
 
-    elif field.type == config['Input_Array']:
+    elif field.type == config["Input_Array"]:
         e = []
 
         val = StringVar(root) # SIZE
         val.set(str(len(field.value)))
-        val.trace('w', partial(field.command, UI_ITEMS, field.name))
+        val.trace("w", partial(field.command, UI_ITEMS, field.name))
         
         main_item = Frame(root)
         e.append(main_item)
@@ -267,86 +273,95 @@ def GenerateInputUI(root, field, UI_ITEMS):
         main_item.grid(row=field.location[0], column=field.location[1])
         valType = int
 
-        val.trace('w', partial(field.otherData['sizeRestrictFunc'], (field.name, e, val, valType), field.otherData['sizeRange']))
+        val.trace("w", partial(field.otherData["sizeRestrictFunc"], (field.name, e, val, valType), field.otherData["sizeRange"]))
 
     return e, val, valType
 
 # UI Commands
 # Scrolling Functions
 def UpdateScrollbarData(root, canvas):
+    '''
+    Updates the Scrollbar size based on the current content in the canvas
+    '''
     root.update_idletasks()  # Needed to make bbox info available.
     bbox = canvas.bbox(tk.ALL)  # Get bounding box of canvas with Buttons.
 
     # Define the scrollable region as entire canvas with only the desired
     # number of rows and columns displayed.
-    w = Utils.Threshold(bbox[2]-bbox[1], [0, config['Window_MaxSize'][0]])
-    h = Utils.Threshold(bbox[3]-bbox[1], [0, config['Window_MaxSize'][1]])
+    w = Utils.Threshold(bbox[2]-bbox[1], [0, config["Window_MaxSize"][0]])
+    h = Utils.Threshold(bbox[3]-bbox[1], [0, config["Window_MaxSize"][1]])
     # dw, dh = int((w/COLS) * COLS_DISP), int((h/ROWS) * ROWS_DISP)
     canvas.configure(scrollregion=bbox, width=w, height=h)
 
 # Data Display Functions
 def DataShow_Basic(ui_items, name, *args):
+    '''
+    Data Show - Basic
+    '''
     if ui_items is None:
         return
     # Search and get the DataShow corresponding Field value
     data = None
-    for itemTypeKey in ui_items[config['Input_UI']].keys():
-        for item in ui_items[config['Input_UI']][itemTypeKey]:
+    for itemTypeKey in ui_items[config["Input_UI"]].keys():
+        for item in ui_items[config["Input_UI"]][itemTypeKey]:
             if name == item[0]:
                 # Check datatype
                 if pct.CheckType(item[2].get(), item[3]):
                     data = str(item[2].get())
                 else:
-                    data = 'INVALID DATA'
+                    data = "INVALID DATA"
                 break
     
     # Update the Data Show Label
-    for item in ui_items[config['Additional_UI']][config['Additional_DataShow']]:
+    for item in ui_items[config["Additional_UI"]][config["Additional_DataShow"]]:
         if name == item[0]:
             item[2].set(data)
             break
 
 def DataShow_WithFileDisplay(ui_items, name, *args):
+    '''
+    Data Show - With File Display
+    '''
     if ui_items is None:
         return
     # Search and get the DataShow corresponding Field value
     data = None
-    for itemTypeKey in ui_items[config['Input_UI']].keys():
-        for item in ui_items[config['Input_UI']][itemTypeKey]:
+    for itemTypeKey in ui_items[config["Input_UI"]].keys():
+        for item in ui_items[config["Input_UI"]][itemTypeKey]:
             if name == item[0]:
                 # Check datatype
                 if pct.CheckType(item[2].get(), item[3]):
                     data = str(item[2].get())
                 else:
-                    data = 'INVALID DATA'
+                    data = "INVALID DATA"
                 break
 
     # Update File Show Label
-    for item in ui_items[config['Additional_UI']][config['Additional_FileShow']]:
+    for item in ui_items[config["Additional_UI"]][config["Additional_FileShow"]]:
         if name == item[0]:
             # Check if valid file
             if os.path.isfile(data):
                 ext = os.path.splitext(data)[-1]
                 # Check if data is image
-                if ext in pct.config['Image_Extensions']:
+                if ext in pct.config["Image_Extensions"]:
                     item[2].set("Image")
-                    item[1].textvariable = ''
+                    item[1].textvariable = ""
                     item[1].image = ImageTk.PhotoImage(Image.open(data))
-                    item[1].configure(image=item[1].image, textvariable='')
+                    item[1].configure(image=item[1].image, textvariable="")
                 # Check if text file
-                elif ext in pct.config['Text_Extensions']:
-                    item[1].image = ''
-                    item[2].set(str(open(data, 'r').read()))
-                    item[1].configure(image='', textvariable=item[2])
+                elif ext in pct.config["Text_Extensions"]:
+                    item[1].image = ""
+                    item[2].set(str(open(data, "r").read()))
+                    item[1].configure(image="", textvariable=item[2])
                 # If None dont display anything
                 else:
-                    item[1].image = ''
+                    item[1].image = ""
                     item[2].set("Unknown File Format")
-                    item[1].configure(image='', textvariable=item[2])
+                    item[1].configure(image="", textvariable=item[2])
             break
     
     # Update the Data Show Label
-    for item in ui_items[config['Additional_UI']][config['Additional_DataShow']]:
+    for item in ui_items[config["Additional_UI"]][config["Additional_DataShow"]]:
         if name == item[0]:
             item[2].set((data))
             break
@@ -356,6 +371,9 @@ def DataShow_WithFileDisplay(ui_items, name, *args):
 
 # Restrict List Size Functions
 def ListSizeUpdate_SizeRangeCheck(item, valRange, *args):
+    '''
+    List Size Update - Size Range Check
+    '''
     main_item = item[1][0]
     child_items = item[1][1:]
     val = item[2]
@@ -408,58 +426,70 @@ def ListSizeUpdate_SizeRangeCheck(item, valRange, *args):
 
 # Select File Functions
 def SelectFile_BasicDialogBox(val, otherData):
+    '''
+    Select File - Basic Dialog Box
+    '''
     # Create File Dialog Box
-    filename = filedialog.askopenfilename(initialdir='./', title="Select File")
+    filename = filedialog.askopenfilename(initialdir="./", title="Select File")
     val.set(str(filename))
 
 def SelectFile_ExtCheck(val, otherData):
+    '''
+    Select File - With Extension Check
+    '''
     # Create File Dialog Box
-    filename = filedialog.askopenfilename(initialdir='./', title="Select File")
+    filename = filedialog.askopenfilename(initialdir="./", title="Select File")
     # Check for accepted extensions and perform extension check
-    if 'ext' in otherData.keys():
-        if os.path.splitext(filename)[-1] in otherData['ext']:
+    if "ext" in otherData.keys():
+        if os.path.splitext(filename)[-1] in otherData["ext"]:
             val.set(str(filename))
         else:
-            val.set('INVALID FILE EXTENSION')
+            val.set("INVALID FILE EXTENSION")
     else:
         val.set(str(filename))
 
 # Select Dir Functions
 def SelectDir_BasicDialogBox(val, otherData):
+    '''
+    Select Dir - Basic Dialog Box
+    '''
     # Create File Dialog Box
-    dirpath = filedialog.askdirectory(initialdir='./', title="Select Dir")
+    dirpath = filedialog.askdirectory(initialdir="./", title="Select Dir")
     val.set(str(dirpath))
 
 # Set None Functions
 def SetNoneCommand_EntryDisable(ui_items, name):
+    '''
+    Set None Command - Entry Disable
+    '''
     if ui_items is None:
         return
     # Disables corresponding entry field when Set None Field is Active
     # Search and get the NoneCheck Field Value and DataShow Label and FileShow Label
     disable = True
-    for item in ui_items[config['Additional_UI']][config['Additional_NoneCheck']]:
+    for item in ui_items[config["Additional_UI"]][config["Additional_NoneCheck"]]:
         if name == item[0]:
             disable = item[3](item[2].get())
             break
     
     FileShow_Item = None
-    for item in ui_items[config['Additional_UI']][config['Additional_FileShow']]:
+    for item in ui_items[config["Additional_UI"]][config["Additional_FileShow"]]:
         if name == item[0]:
             FileShow_Item = item[1]
             break
     DataShow_Val = None
-    for item in ui_items[config['Additional_UI']][config['Additional_DataShow']]:
+    for item in ui_items[config["Additional_UI"]][config["Additional_DataShow"]]:
         if name == item[0]:
             DataShow_Val = item[2]
             break
 
     # Search and get the corresponding entry field
     field = None
-    for itemTypeKey in ui_items[config['Input_UI']].keys():
-        for item in ui_items[config['Input_UI']][itemTypeKey]:
+    for itemTypeKey in ui_items[config["Input_UI"]].keys():
+        for item in ui_items[config["Input_UI"]][itemTypeKey]:
             if name == item[0]:
                 if disable:
-                    DataShow_Val.set('None')
+                    DataShow_Val.set("None")
                     FileShow_Item.configure(state=tk.DISABLED)
                     if type(item[1]) == list:
                         for i in range(1, len(item[1])):
@@ -481,13 +511,16 @@ def SetNoneCommand_EntryDisable(ui_items, name):
 
 # Run Script Functions
 def RunScript_Basic(ui_items, ParsedCode):
+    '''
+    Run Script - Basic
+    '''
     if ui_items is None:
         return
     inputs = {}
 
     # Check for None Input
     NoneInputNames = []
-    for item in ui_items[config['Additional_UI']][config['Additional_NoneCheck']]:
+    for item in ui_items[config["Additional_UI"]][config["Additional_NoneCheck"]]:
         for i in range(len(ParsedCode.script_parameters)):
             if ParsedCode.script_parameters[i].name == item[0]:
                 if item[3] is not None:
@@ -497,8 +530,8 @@ def RunScript_Basic(ui_items, ParsedCode):
                     break
 
     # Gather Inputs from UI
-    for itemTypeKey in ui_items[config['Input_UI']].keys():
-        for item in ui_items[config['Input_UI']][itemTypeKey]:
+    for itemTypeKey in ui_items[config["Input_UI"]].keys():
+        for item in ui_items[config["Input_UI"]][itemTypeKey]:
             for i in range(len(ParsedCode.script_parameters)):
                 if ParsedCode.script_parameters[i].name == item[0]:
                     if item[3] is not None:
@@ -507,14 +540,14 @@ def RunScript_Basic(ui_items, ParsedCode):
                             ParsedCode.script_parameters[i].value = None
                             ParsedCode.script_parameters[i].type = type(None)
                         elif type(item[1]) == list:
-                            ParsedCode.script_parameters[i].otherData['ListData'] = []
+                            ParsedCode.script_parameters[i].otherData["ListData"] = []
                             for it in range(1, int(item[2].get())+1):
                                 dat = item[1][it][2]
                                 if dat is None:
                                     dat = item[1][it][1]
-                                    ParsedCode.script_parameters[i].otherData['ListData'].append((item[1][it][3](dat.get("1.0", tk.END))))
+                                    ParsedCode.script_parameters[i].otherData["ListData"].append((item[1][it][3](dat.get("1.0", tk.END))))
                                 else:
-                                    ParsedCode.script_parameters[i].otherData['ListData'].append((item[1][it][3](dat.get())))
+                                    ParsedCode.script_parameters[i].otherData["ListData"].append((item[1][it][3](dat.get())))
                         else:
                             dat = item[2]
                             if dat is None:
@@ -528,30 +561,33 @@ def RunScript_Basic(ui_items, ParsedCode):
     code_RE = pct.ReconstructCodeText(ParsedCode)
 
     # print(code_RE)
-    print('\n\n')
+    print("\n\n")
 
     # Run the reconstructed Code
     print("Script Output:\n\n")
     output = Utils.RunPythonCode(code_RE)
     print(output)
 
-    # Set Output text to Output Text UI'
-    if config['Output_Text'] in ui_items[config['Output_UI']].keys():
-        for i in range(len(ui_items[config['Output_UI']][config['Output_Text']])):
+    # Set Output text to Output Text UI"
+    if config["Output_Text"] in ui_items[config["Output_UI"]].keys():
+        for i in range(len(ui_items[config["Output_UI"]][config["Output_Text"]])):
             print("Setting Output Text")
-            # ui_items[config['Output_UI']][config['Output_Text']][i][1].configure(state=tk.NORMAL)
-            # ui_items[config['Output_UI']][config['Output_Text']][i][1].insert(tk.END, output)
-            # ui_items[config['Output_UI']][config['Output_Text']][i][1].configure(state=tk.DISABLED)
-            ui_items[config['Output_UI']][config['Output_Text']][i][2].set(str(output))
+            # ui_items[config["Output_UI"]][config["Output_Text"]][i][1].configure(state=tk.NORMAL)
+            # ui_items[config["Output_UI"]][config["Output_Text"]][i][1].insert(tk.END, output)
+            # ui_items[config["Output_UI"]][config["Output_Text"]][i][1].configure(state=tk.DISABLED)
+            ui_items[config["Output_UI"]][config["Output_Text"]][i][2].set(str(output))
 
 def RunScript_WithEffectsCodeProcess(ui_items, ParsedCode, EffectsCodeProcessFuncs):
+    '''
+    Run Script - With Effects Code Process
+    '''
     if ui_items is None:
         return
     inputs = {}
 
     # Check for None Input
     NoneInputNames = []
-    for item in ui_items[config['Additional_UI']][config['Additional_NoneCheck']]:
+    for item in ui_items[config["Additional_UI"]][config["Additional_NoneCheck"]]:
         for i in range(len(ParsedCode.script_parameters)):
             if ParsedCode.script_parameters[i].name == item[0]:
                 if item[3] is not None:
@@ -561,8 +597,8 @@ def RunScript_WithEffectsCodeProcess(ui_items, ParsedCode, EffectsCodeProcessFun
                     break
 
     # Gather Inputs from UI
-    for itemTypeKey in ui_items[config['Input_UI']].keys():
-        for item in ui_items[config['Input_UI']][itemTypeKey]:
+    for itemTypeKey in ui_items[config["Input_UI"]].keys():
+        for item in ui_items[config["Input_UI"]][itemTypeKey]:
             for i in range(len(ParsedCode.script_parameters)):
                 if ParsedCode.script_parameters[i].name == item[0]:
                     if item[3] is not None:
@@ -571,7 +607,7 @@ def RunScript_WithEffectsCodeProcess(ui_items, ParsedCode, EffectsCodeProcessFun
                             ParsedCode.script_parameters[i].value = None
                             ParsedCode.script_parameters[i].type = type(None)
                         elif type(item[1]) == list:
-                            ParsedCode.script_parameters[i].otherData['ListData'] = []
+                            ParsedCode.script_parameters[i].otherData["ListData"] = []
                             for it in range(1, int(item[2].get())+1):
                                 dat = item[1][it][2]
                                 if dat is None:
@@ -584,7 +620,7 @@ def RunScript_WithEffectsCodeProcess(ui_items, ParsedCode, EffectsCodeProcessFun
                                     if item[0] == name:
                                         dat = EffectsCodeProcessFuncs[name](dat)
 
-                                ParsedCode.script_parameters[i].otherData['ListData'].append((item[1][it][3](dat)))
+                                ParsedCode.script_parameters[i].otherData["ListData"].append((item[1][it][3](dat)))
                         else:
                             dat = item[2]
                             if dat is None:
@@ -604,21 +640,21 @@ def RunScript_WithEffectsCodeProcess(ui_items, ParsedCode, EffectsCodeProcessFun
     code_RE = pct.ReconstructCodeText(ParsedCode)
 
     # print(code_RE)
-    print('\n\n')
+    print("\n\n")
 
     # Run the reconstructed Code
     print("Script Output:\n\n")
     output = Utils.RunPythonCode(code_RE)
     print(output)
 
-    # Set Output text to Output Text UI'
-    if config['Output_Text'] in ui_items[config['Output_UI']].keys():
-        for i in range(len(ui_items[config['Output_UI']][config['Output_Text']])):
+    # Set Output text to Output Text UI"
+    if config["Output_Text"] in ui_items[config["Output_UI"]].keys():
+        for i in range(len(ui_items[config["Output_UI"]][config["Output_Text"]])):
             print("Setting Output Text")
-            # ui_items[config['Output_UI']][config['Output_Text']][i][1].configure(state=tk.NORMAL)
-            # ui_items[config['Output_UI']][config['Output_Text']][i][1].insert(tk.END, output)
-            # ui_items[config['Output_UI']][config['Output_Text']][i][1].configure(state=tk.DISABLED)
-            ui_items[config['Output_UI']][config['Output_Text']][i][2].set(str(output))
+            # ui_items[config["Output_UI"]][config["Output_Text"]][i][1].configure(state=tk.NORMAL)
+            # ui_items[config["Output_UI"]][config["Output_Text"]][i][1].insert(tk.END, output)
+            # ui_items[config["Output_UI"]][config["Output_Text"]][i][1].configure(state=tk.DISABLED)
+            ui_items[config["Output_UI"]][config["Output_Text"]][i][2].set(str(output))
     
 
 

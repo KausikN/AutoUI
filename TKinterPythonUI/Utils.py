@@ -1,6 +1,6 @@
-'''
+"""
 Util Functions
-'''
+"""
 
 # Imports
 import sys
@@ -14,6 +14,9 @@ from tkinter import ttk
 
 
 def RunPythonCode(code, ERRORTEXT=" --- ERROR IN SCRIPT EXEC ---"):
+    '''
+    Runs Python Code from a String
+    '''
     ERRORCHECK = False
     RETURNDATA = False
 
@@ -37,13 +40,16 @@ def RunPythonCode(code, ERRORTEXT=" --- ERROR IN SCRIPT EXEC ---"):
 
     else:
         exec(code, globals())
-        return ''
+        return ""
 
 
     
 
 # Other Generic Util Functions
 def Threshold(val, threshold):
+    '''
+    Thresholds a Value between a Min and Max
+    '''
     if val < threshold[0]:
         val = threshold[0]
     elif val > threshold[1]:
