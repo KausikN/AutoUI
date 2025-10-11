@@ -2,7 +2,7 @@
  Automatic UI Generator for Various Languages and in Various UI Libraries
 
 # GUI
-[![https://kausikn-anncodegen.streamlit.app/](https://static.streamlit.io/badges/streamlit_badge_black_red.svg)](https://kausikn-anncodegen.streamlit.app/)
+[![https://kausikn-autoui.streamlit.app/](https://static.streamlit.io/badges/streamlit_badge_black_red.svg)](https://kausikn-autoui.streamlit.app/)
 
 - GUI built using streamlit
 - To use app locally,
